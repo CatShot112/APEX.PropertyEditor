@@ -10,7 +10,7 @@ Program can read all three versions of RTPC files, but writing modified version 
 Compiled binaries can be found [here](https://github.com/CatShot112/APEX.PropertyEditor/releases).
 
 ## Build
-You will need to download compiled SFML binaries from [here]() and put libraries in `C++/external/lib/x64/`. Then just open solution in Visual Studio 2022 and compile.
+You will need to download compiled SFML binaries from [here](https://github.com/CatShot112/APEX.PropertyEditor/releases) and put libraries in `C++/external/lib/x64/`. Then just open solution in Visual Studio 2022 and compile.
 
 ## Todo
 - [ ] Implement serializer for RTPC version 1 and 3.
