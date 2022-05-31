@@ -1,0 +1,8 @@
+C++/.vs
+C++/external/bin
+C++/external/lib
+C++/Out
+
+C++/imgui.ini
+C++/*.vcxproj.user
+C++/*.vcxproj.filters

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{908efa9a-cc62-4f7e-8e0d-ca87ef013c45}</ProjectGuid>
+    <RootNamespace>APEXPropertyEditor</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)Out\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>Out\$(Platform)\$(Configuration)\Obj\</IntDir>
+    <IncludePath>$(ProjectDir)external\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)external\lib\$(Platform);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)Out\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>Out\$(Platform)\$(Configuration)\Obj\</IntDir>
+    <IncludePath>$(ProjectDir)external\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)external\lib\$(Platform);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <BuildLog>
+      <Path>$(IntDir)$(MSBuildProjectName).log</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <BuildLog>
+      <Path>$(IntDir)$(MSBuildProjectName).log</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="headers\imgui\imgui-SFML.cpp" />
+    <ClCompile Include="headers\imgui\imgui.cpp" />
+    <ClCompile Include="headers\imgui\imgui_draw.cpp" />
+    <ClCompile Include="headers\imgui\imgui_stdlib.cpp" />
+    <ClCompile Include="headers\imgui\imgui_tables.cpp" />
+    <ClCompile Include="headers\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\DataBuf\DataBuf.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\rtpc\RtpcFile.cpp" />
+    <ClCompile Include="src\rtpc\RtpcNode.cpp" />
+    <ClCompile Include="src\rtpc\RtpcProp.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="headers\imgui\imconfig-SFML.h" />
+    <ClInclude Include="headers\imgui\imconfig.h" />
+    <ClInclude Include="headers\imgui\imgui-SFML.h" />
+    <ClInclude Include="headers\imgui\imgui-SFML_export.h" />
+    <ClInclude Include="headers\imgui\imgui.h" />
+    <ClInclude Include="headers\imgui\imgui_internal.h" />
+    <ClInclude Include="headers\imgui\imgui_stdlib.h" />
+    <ClInclude Include="headers\imgui\imstb_rectpack.h" />
+    <ClInclude Include="headers\imgui\imstb_textedit.h" />
+    <ClInclude Include="headers\imgui\imstb_truetype.h" />
+    <ClInclude Include="headers\jenkins\hashlittle.h" />
+    <ClInclude Include="src\DataBuf\DataBuf.hpp" />
+    <ClInclude Include="src\rtpc\RtpcFile.hpp" />
+    <ClInclude Include="src\rtpc\RtpcNode.hpp" />
+    <ClInclude Include="src\rtpc\RtpcProp.hpp" />
+    <ClInclude Include="src\Typedefs.hpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

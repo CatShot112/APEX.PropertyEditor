@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32519.379
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "APEX.PropertyEditor", "APEX.PropertyEditor.vcxproj", "{908EFA9A-CC62-4F7E-8E0D-CA87EF013C45}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{908EFA9A-CC62-4F7E-8E0D-CA87EF013C45}.Debug|x64.ActiveCfg = Debug|x64
+		{908EFA9A-CC62-4F7E-8E0D-CA87EF013C45}.Debug|x64.Build.0 = Debug|x64
+		{908EFA9A-CC62-4F7E-8E0D-CA87EF013C45}.Release|x64.ActiveCfg = Release|x64
+		{908EFA9A-CC62-4F7E-8E0D-CA87EF013C45}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3F5070E3-D2EB-44CE-ACA4-F3F359B1E650}
+	EndGlobalSection
+EndGlobal
