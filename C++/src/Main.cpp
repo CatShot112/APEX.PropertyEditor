@@ -67,22 +67,22 @@ void DehashNames(RtpcNode& node) {
 }
 
 void ProcessRTPC(std::wstring fileName) {
-	std::ifstream file(fileName, std::ios::binary);
+    std::ifstream file(fileName, std::ios::binary);
 
-	if (!file.is_open()) {
-		printf("[ERRO]: Failed to open RTPC file!\n");
-		return;
-	}
+    if (!file.is_open()) {
+        printf("[ERRO]: Failed to open RTPC file!\n");
+        return;
+    }
 
-	if (!rtpcFile.Deserialize(file)) {
-		printf("[ERRO]: Failed to process RTPC file!\n");
-		file.close();
-		return;
-	}
+    if (!rtpcFile.Deserialize(file)) {
+        printf("[ERRO]: Failed to process RTPC file!\n");
+        file.close();
+        return;
+    }
 
-	file.close();
+    file.close();
 
-	DehashNames(rtpcFile.mainNode);
+    DehashNames(rtpcFile.mainNode);
 }
 
 void InitHashMap() {
@@ -260,30 +260,30 @@ void ShowPropertyEditor(bool* open, bool showAll) {
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdShow) {
     InitHashMap();
 
-	sf::RenderWindow window(sf::VideoMode(1280, 720), "APEX.PropertyEditor");
-	sf::Clock clock;
+    sf::RenderWindow window(sf::VideoMode(1280, 720), "APEX.PropertyEditor");
+    sf::Clock clock;
 
-	bool showAll = true;
-	window.setVerticalSyncEnabled(true);
+    bool showAll = true;
+    window.setVerticalSyncEnabled(true);
 
-	ImGui::SFML::Init(window);
+    ImGui::SFML::Init(window);
 
-	while (window.isOpen()) {
-		sf::Event e;
+    while (window.isOpen()) {
+        sf::Event e;
 
-		while (window.pollEvent(e)) {
-			ImGui::SFML::ProcessEvent(window, e);
+        while (window.pollEvent(e)) {
+            ImGui::SFML::ProcessEvent(window, e);
 
-			if (e.type == sf::Event::Closed)
-				window.close();
-		}
+            if (e.type == sf::Event::Closed)
+                window.close();
+        }
 
-		ImGui::SFML::Update(window, clock.restart());
-		ImGui::DockSpaceOverViewport();
+        ImGui::SFML::Update(window, clock.restart());
+        ImGui::DockSpaceOverViewport();
 
-		ImGui::Begin("Load/Save File");
-		{
-			if (ImGui::Button("Load File")) {
+        ImGui::Begin("Load/Save File");
+        {
+            if (ImGui::Button("Load File")) {
                 if (SUCCEEDED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE))) {
                     IFileOpenDialog* pFileOpen = nullptr;
 
@@ -313,28 +313,28 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, in
 
                     CoUninitialize();
                 }
-			}
+            }
 
             ImGui::SameLine();
 
-			if (ImGui::Button("Reload File")) {
-				rtpcFile.Clear();
-				ProcessRTPC(currentFileName);
-				showAll = true;
-			}
+            if (ImGui::Button("Reload File")) {
+                rtpcFile.Clear();
+                ProcessRTPC(currentFileName);
+                showAll = true;
+            }
 
             ImGui::SameLine();
 
-			if (ImGui::Button("Save File")) {
-				writtenStrings.clear();
-				std::ofstream file(currentFileName, std::ios::binary);
-				rtpcFile.Serialize(file);
-				file.close();
-			}
+            if (ImGui::Button("Save File")) {
+                writtenStrings.clear();
+                std::ofstream file(currentFileName, std::ios::binary);
+                rtpcFile.Serialize(file);
+                file.close();
+            }
 
             ImGui::SameLine();
 
-			if (ImGui::Button("Save File As")) {
+            if (ImGui::Button("Save File As")) {
                 if (SUCCEEDED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE))) {
                     IFileSaveDialog* pFileSave = nullptr;
 
@@ -366,20 +366,20 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, in
 
                     CoUninitialize();
                 }
-			}
-		}
-		ImGui::End();
+            }
+        }
+        ImGui::End();
 
         ShowPropertyEditor(nullptr, showAll);
         if (showAll)
             showAll = false;
 
-		window.clear();
-		ImGui::SFML::Render(window);
-		window.display();
-	}
+        window.clear();
+        ImGui::SFML::Render(window);
+        window.display();
+    }
 
-	ImGui::SFML::Shutdown();
+    ImGui::SFML::Shutdown();
 
-	return 0;
+    return 0;
 }
