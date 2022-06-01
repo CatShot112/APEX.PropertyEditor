@@ -5,7 +5,7 @@
 extern vector<string> writtenStrings;
 
 class RtpcNode {
-	void WritePadding(std::ofstream& file);
+	void WritePadding(std::ofstream& file, int alignTo);
 
 public:
 	// Header data

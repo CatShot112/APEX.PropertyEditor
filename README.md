@@ -4,7 +4,9 @@ This project is using [SFML](https://github.com/SFML/SFML), [Dear ImGui](https:/
 ## Info
 This program allows You to view and modify RTPC files extracted from games that are running on APEX Engine (theHunter: COTW, GenerationZero, possibly others (not tested :)). You can extract RTPC files using [DECA](https://github.com/kk49/deca).
 
-Program can read all three versions of RTPC files, but writing modified version of it works only on version 2. Support for other versions will be added later.
+Program can read all three versions of RTPC files, but writing modified version of it works only on version 1 and 2. Support for other versions will be added later.
+
+Please make sure that modified files are serialized properly by comparing them with originals using some hex editor. If they don't match (except modified stuff), please report an issue with game name and extracted file path and name, so I can investigate.
 
 ## Releases
 Compiled binaries can be found [here](https://github.com/CatShot112/APEX.PropertyEditor/releases).
@@ -13,7 +15,7 @@ Compiled binaries can be found [here](https://github.com/CatShot112/APEX.Propert
 You will need to download compiled SFML binaries from [here](https://github.com/CatShot112/APEX.PropertyEditor/releases) and put libraries in `C++/external/lib/x64/`. Then just open solution in Visual Studio 2022 and compile.
 
 ## Todo
-- [ ] Implement serializer for RTPC version 1 and 3.
+- [ ] Implement serializer for RTPC version 3.
 - [ ] Implement search properties function.
 - [ ] Add ability to edit strings.
 
