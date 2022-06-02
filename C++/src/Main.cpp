@@ -31,6 +31,9 @@
 RtpcFile rtpcFile;
 std::wstring currentFileName;
 
+bool searchOn = false;
+std::string searchStr;
+
 std::unordered_map<u32, string> hashmap;
 std::unordered_map<u8, string> propTypeNames = {
     {0, "none"},
@@ -124,6 +127,9 @@ void ShowNode(RtpcNode& node, bool showAll) {
             // Skip null props
             if (node.props[i].HashedName == 0)
                 continue;
+            if (searchOn && node.props[i].DehashedName.find(searchStr) == std::string::npos)
+                continue;
+                
 
             ImGui::PushID(&node.props[i]);
 
@@ -367,6 +373,13 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, in
                     CoUninitialize();
                 }
             }
+
+            ImGui::SameLine();
+
+            ImGui::Checkbox("Enable Prop Search", &searchOn);
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(-FLT_MIN);
+            ImGui::InputText("##value", &searchStr);
         }
         ImGui::End();
 
