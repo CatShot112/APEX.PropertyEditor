@@ -4,13 +4,13 @@
 #include "../headers/jenkins/hashlittle.h"
 
 #include "rtpc/RtpcFile.hpp"
+#include "FileSystem/FileSystem.hpp"
 
 // SFML includes
 #include <SFML/Graphics.hpp>
 
 // Windows includes
 #include <Windows.h>
-#include <ShObjIdl.h>
 
 // Std library includes
 #include <unordered_map>
@@ -290,34 +290,10 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, in
         ImGui::Begin("Load/Save File");
         {
             if (ImGui::Button("Load File")) {
-                if (SUCCEEDED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE))) {
-                    IFileOpenDialog* pFileOpen = nullptr;
-
-                    if (SUCCEEDED(CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen)))) {
-                        if (SUCCEEDED(pFileOpen->Show(nullptr))) {
-                            IShellItem* pItem = nullptr;
-
-                            if (SUCCEEDED(pFileOpen->GetResult(&pItem))) {
-                                PWSTR pszFilePath = nullptr;
-
-                                if (SUCCEEDED(pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath))) {
-                                    currentFileName = pszFilePath;
-
-                                    rtpcFile.Clear();
-                                    ProcessRTPC(currentFileName);
-                                    showAll = true;
-
-                                    CoTaskMemFree(pszFilePath);
-                                }
-
-                                pItem->Release();
-                            }
-                        }
-
-                        pFileOpen->Release();
-                    }
-
-                    CoUninitialize();
+                if (FileSystem::OpenFileDialog(currentFileName)) {
+                    rtpcFile.Clear();
+                    ProcessRTPC(currentFileName);
+                    showAll = true;
                 }
             }
 
@@ -341,36 +317,12 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, in
             ImGui::SameLine();
 
             if (ImGui::Button("Save File As")) {
-                if (SUCCEEDED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE))) {
-                    IFileSaveDialog* pFileSave = nullptr;
+                if (FileSystem::SaveFileDialog(currentFileName)) {
+                    writtenStrings.clear();
 
-                    if (SUCCEEDED(CoCreateInstance(CLSID_FileSaveDialog, nullptr, CLSCTX_ALL, IID_IFileSaveDialog, reinterpret_cast<void**>(&pFileSave)))) {
-                        if (SUCCEEDED(pFileSave->Show(nullptr))) {
-                            IShellItem* pItem = nullptr;
-
-                            if (SUCCEEDED(pFileSave->GetResult(&pItem))) {
-                                PWSTR pszFilePath = nullptr;
-
-                                if (SUCCEEDED(pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath))) {
-                                    currentFileName = pszFilePath;
-                                    writtenStrings.clear();
-
-                                    std::ofstream file(currentFileName, std::ios::binary);
-                                    rtpcFile.Serialize(file);
-                                    file.close();
-
-                                    CoTaskMemFree(pszFilePath);
-                                }
-
-                                pItem->Release();
-                            }
-                        }
-
-                        pFileSave->Release();
-
-                    }
-
-                    CoUninitialize();
+                    std::ofstream file(currentFileName, std::ios::binary);
+                    rtpcFile.Serialize(file);
+                    file.close();
                 }
             }
 

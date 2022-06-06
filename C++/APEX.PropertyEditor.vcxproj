@@ -101,6 +101,7 @@
     <ClCompile Include="headers\imgui\imgui_tables.cpp" />
     <ClCompile Include="headers\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\DataBuf\DataBuf.cpp" />
+    <ClCompile Include="src\FileSystem\FileSystem.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\rtpc\RtpcFile.cpp" />
     <ClCompile Include="src\rtpc\RtpcNode.cpp" />
@@ -122,6 +123,7 @@
     <ClInclude Include="src\rtpc\RtpcFile.hpp" />
     <ClInclude Include="src\rtpc\RtpcNode.hpp" />
     <ClInclude Include="src\rtpc\RtpcProp.hpp" />
+    <ClInclude Include="src\FileSystem\FileSystem.hpp" />
     <ClInclude Include="src\Typedefs.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
