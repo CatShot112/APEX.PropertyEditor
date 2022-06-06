@@ -1,4 +1,5 @@
 #include "../headers/imgui/imgui.h"
+#include "../headers/imgui/imgui_internal.h"
 #include "../headers/imgui/imgui-SFML.h"
 #include "../headers/imgui/imgui_stdlib.h"
 #include "../headers/jenkins/hashlittle.h"
@@ -136,7 +137,7 @@ void ShowNode(RtpcNode& node, bool showAll) {
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
             ImGui::AlignTextToFramePadding();
-            ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
+            ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
             // Try to find dehashed name for property
             if (node.props[i].DehashedName.length() > 0)
@@ -228,6 +229,13 @@ void ShowNode(RtpcNode& node, bool showAll) {
                     ImGui::InputScalarN("##value", ImGuiDataType_U64, &node.props[i].DataFinal[0], (int)node.props[i].DataFinal.GetSize() / sizeof(u64));
                 else
                     ImGui::Text("Empty event.");
+            }
+
+            // Show tooltips
+            if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.25f) {
+                if (node.props[i].Type == 3) {
+                    ImGui::SetTooltip("Strings cannot be modified yet.");
+                }
             }
 
             ImGui::NextColumn();
