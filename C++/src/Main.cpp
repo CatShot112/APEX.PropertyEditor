@@ -263,6 +263,12 @@ void ShowPropertyEditor(bool* open, bool showAll) {
     ImGui::End();
 }
 
+#ifdef _DEBUG
+int main(int argc, char** argv) {
+    return WinMain(GetModuleHandleA(nullptr), nullptr, GetCommandLineA(), SW_SHOWNORMAL);
+}
+#endif
+
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdShow) {
     InitHashMap();
 
