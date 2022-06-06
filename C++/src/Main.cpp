@@ -3,7 +3,7 @@
 #include "../headers/imgui/imgui_stdlib.h"
 #include "../headers/jenkins/hashlittle.h"
 
-#include "rtpc/RtpcFile.hpp"
+#include "Rtpc/RtpcFile.hpp"
 #include "FileSystem/FileSystem.hpp"
 
 // SFML includes

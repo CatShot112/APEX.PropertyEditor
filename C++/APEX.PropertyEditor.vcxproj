@@ -103,9 +103,9 @@
     <ClCompile Include="src\DataBuf\DataBuf.cpp" />
     <ClCompile Include="src\FileSystem\FileSystem.cpp" />
     <ClCompile Include="src\Main.cpp" />
-    <ClCompile Include="src\rtpc\RtpcFile.cpp" />
-    <ClCompile Include="src\rtpc\RtpcNode.cpp" />
-    <ClCompile Include="src\rtpc\RtpcProp.cpp" />
+    <ClCompile Include="src\Rtpc\RtpcFile.cpp" />
+    <ClCompile Include="src\Rtpc\RtpcNode.cpp" />
+    <ClCompile Include="src\Rtpc\RtpcProp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\imgui\imconfig-SFML.h" />
@@ -120,10 +120,10 @@
     <ClInclude Include="headers\imgui\imstb_truetype.h" />
     <ClInclude Include="headers\jenkins\hashlittle.h" />
     <ClInclude Include="src\DataBuf\DataBuf.hpp" />
-    <ClInclude Include="src\rtpc\RtpcFile.hpp" />
-    <ClInclude Include="src\rtpc\RtpcNode.hpp" />
-    <ClInclude Include="src\rtpc\RtpcProp.hpp" />
     <ClInclude Include="src\FileSystem\FileSystem.hpp" />
+    <ClInclude Include="src\Rtpc\RtpcFile.hpp" />
+    <ClInclude Include="src\Rtpc\RtpcNode.hpp" />
+    <ClInclude Include="src\Rtpc\RtpcProp.hpp" />
     <ClInclude Include="src\Typedefs.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
