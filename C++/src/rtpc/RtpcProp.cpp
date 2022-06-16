@@ -2,10 +2,14 @@
 
 #include <string>
 
+vector<u32> readOffsets;
+
 RtpcProp::RtpcProp() {
 	HashedName = 0;
 	DataRaw = 0;
 	Type = 0;
+
+	IsShared = false;
 }
 
 bool RtpcProp::Deserialize(std::ifstream& file) {
@@ -17,15 +21,21 @@ bool RtpcProp::Deserialize(std::ifstream& file) {
 	// Save current read position
 	std::streamoff oPos = file.tellg();
 
+	// Seek to data if required
 	if (Type != 0 && Type != 1 && Type != 2)
 		file.seekg(DataRaw);
 
+	if (!std::count(readOffsets.begin(), readOffsets.end(), DataRaw)) {
+		readOffsets.emplace_back(DataRaw);
+	}
+	else {
+		IsShared = true;
+	}
+
 	switch (Type) {
 	case 0: // None
-		break;
 	case 1: // U32
 	case 2: // F32
-		//Data << DataRaw;
 		break;
 	case 3: // Str
 		std::getline(file, DataStr);

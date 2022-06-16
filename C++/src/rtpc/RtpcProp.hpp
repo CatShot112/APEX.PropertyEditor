@@ -5,6 +5,8 @@
 
 #include <fstream>
 
+extern vector<u32> readOffsets;
+
 class RtpcProp {
 public:
 	// Header data
@@ -16,6 +18,8 @@ public:
 	string DehashedName;
 	string DataStr;
 	DataBuf DataFinal;
+
+	bool IsShared;
 
 	RtpcProp();
 

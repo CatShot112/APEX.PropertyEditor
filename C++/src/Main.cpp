@@ -259,6 +259,9 @@ void DrawNode(RtpcNode& node, bool showAll) {
                 if (node.props[i].Type == 3) {
                     ImGui::SetTooltip("Strings cannot be modified yet.");
                 }
+                else if (node.props[i].IsShared) {
+                    ImGui::SetTooltip("Shared values connot be modified yet.");
+                }
             }
 
             ImGui::NextColumn();
