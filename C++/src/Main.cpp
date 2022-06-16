@@ -33,6 +33,7 @@ RtpcFile rtpcFile;
 std::wstring currentFileName;
 
 bool searchOn = false;
+bool showAll = true;
 std::string searchStr;
 
 std::unordered_map<u32, string> hashmap;
@@ -54,12 +55,28 @@ std::unordered_map<u8, string> propTypeNames = {
     {14, "event"}
 };
 
+std::vector<string> recentFiles;
+
+void InitHashMap() {
+    std::ifstream file("property_list_2.txt");
+    if (!file.is_open())
+        return;
+
+    string line;
+    while (std::getline(file, line)) {
+        if (line.empty() || line.size() <= 0 || line[0] == ' ')
+            continue;
+
+        hashmap[hashlittle(line.c_str(), strlen(line.c_str()), 0)] = line;
+    }
+}
+
 void DehashNames(RtpcNode& node) {
     // Dehash current node name
     if (hashmap.count(node.HashedName))
         node.DehashedName = hashmap[node.HashedName];
 
-    // Dehash current node prop names
+    // Dehash current node props names
     for (u16 i = 0; i < node.PropsCount; i++) {
         if (hashmap.count(node.props[i].HashedName))
             node.props[i].DehashedName = hashmap[node.props[i].HashedName];
@@ -89,21 +106,27 @@ void ProcessRTPC(std::wstring fileName) {
     DehashNames(rtpcFile.mainNode);
 }
 
-void InitHashMap() {
-    std::ifstream file("property_list.txt");
-    if (!file.is_open())
+void ProcessRTPC(std::string fileName) {
+    std::ifstream file(fileName, std::ios::binary);
+
+    if (!file.is_open()) {
+        printf("[ERRO]: Failed to open RTPC file!\n");
         return;
-
-    string line;
-    while (std::getline(file, line)) {
-        if (line.empty() || line.size() <= 0 || line[0] == ' ')
-            continue;
-
-        hashmap[hashlittle(line.c_str(), strlen(line.c_str()), 0)] = line;
     }
+
+    if (!rtpcFile.Deserialize(file)) {
+        printf("[ERRO]: Failed to process RTPC file!\n");
+        file.close();
+        return;
+    }
+
+    file.close();
+
+    DehashNames(rtpcFile.mainNode);
 }
 
-void ShowNode(RtpcNode& node, bool showAll) {
+// GUI
+void DrawNode(RtpcNode& node, bool showAll) {
     ImGui::PushID(&node);
 
     ImGui::TableNextRow();
@@ -243,7 +266,7 @@ void ShowNode(RtpcNode& node, bool showAll) {
         }
 
         for (int i = 0; i < node.ChildCount; i++)
-            ShowNode(node.childs[i], showAll);
+            DrawNode(node.childs[i], showAll);
 
         ImGui::TreePop();
     }
@@ -251,7 +274,7 @@ void ShowNode(RtpcNode& node, bool showAll) {
     ImGui::PopID();
 }
 
-void ShowPropertyEditor(bool* open, bool showAll) {
+void DrawPropertyEditor(bool* open, bool showAll) {
     ImGui::SetNextWindowSize(ImVec2(430, 450), ImGuiCond_FirstUseEver);
 
     if (!ImGui::Begin("Property editor", open)) {
@@ -262,7 +285,7 @@ void ShowPropertyEditor(bool* open, bool showAll) {
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
 
     if (ImGui::BeginTable("split", 3, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable)) {
-        ShowNode(rtpcFile.mainNode, showAll);
+        DrawNode(rtpcFile.mainNode, showAll);
 
         ImGui::EndTable();
     }
@@ -271,19 +294,128 @@ void ShowPropertyEditor(bool* open, bool showAll) {
     ImGui::End();
 }
 
-#ifdef _DEBUG
-int main(int argc, char** argv) {
-    return WinMain(GetModuleHandleA(nullptr), nullptr, GetCommandLineA(), SW_SHOWNORMAL);
+void DrawMainMenuBar(sf::RenderWindow& window) {
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            if (ImGui::MenuItem("Open", "CTRL+O")) {
+                if (FileSystem::OpenFileDialog(currentFileName)) {
+                    rtpcFile.Clear();
+
+                    ProcessRTPC(currentFileName);
+                    showAll = true;
+                }
+            }
+
+            if (ImGui::BeginMenu("Open Recent")) {
+                if (recentFiles.size() <= 0) {
+                    ImGui::Text("No History Yet..");
+                }
+                else {
+                    for (size_t i = 0; i < recentFiles.size(); i++) {
+                        if (i >= 10)
+                            break;
+
+                        if (ImGui::MenuItem(recentFiles[i].c_str())) {
+                            rtpcFile.Clear();
+                            ProcessRTPC(recentFiles[i]);
+                            showAll = true;
+                        }
+                    }
+                }
+
+
+                ImGui::EndMenu();
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Save", "CTRL+S")) {
+                writtenStrings.clear();
+                std::ofstream file(currentFileName, std::ios::binary);
+                rtpcFile.Serialize(file);
+                file.close();
+            }
+
+            if (ImGui::MenuItem("Save As..", "CTRL+SHIFT+S")) {
+                if (FileSystem::SaveFileDialog(currentFileName)) {
+                    writtenStrings.clear();
+
+                    std::ofstream file(currentFileName, std::ios::binary);
+                    rtpcFile.Serialize(file);
+                    file.close();
+                }
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Reload")) {
+                rtpcFile.Clear();
+                ProcessRTPC(currentFileName);
+                showAll = true;
+            }
+
+            if (ImGui::MenuItem("Rename")) {
+
+            }
+
+            if (ImGui::MenuItem("Close")) {
+                rtpcFile.Clear();
+                showAll = true;
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Exit")) {
+                window.close();
+            }
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Edit")) {
+            if (ImGui::MenuItem("Undo", "CTLR+Z")) {}
+            if (ImGui::MenuItem("Redo", "CTRL+Y")) {}
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+            if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Search", "CTRL+F")) {}
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Options")) {
+            if (ImGui::MenuItem("Colors")) {}
+            if (ImGui::MenuItem("Settings")) {}
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Help")) {
+            if (ImGui::MenuItem("About")) {}
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Console")) {}
+
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
 }
-#endif
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdShow) {
-    InitHashMap();
+    //InitHashMap();
 
     sf::RenderWindow window(sf::VideoMode(1280, 720), "APEX.PropertyEditor");
     sf::Clock clock;
 
-    bool showAll = true;
     window.setVerticalSyncEnabled(true);
 
     ImGui::SFML::Init(window);
@@ -301,55 +433,9 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, in
         ImGui::SFML::Update(window, clock.restart());
         ImGui::DockSpaceOverViewport();
 
-        ImGui::Begin("Load/Save File");
-        {
-            if (ImGui::Button("Load File")) {
-                if (FileSystem::OpenFileDialog(currentFileName)) {
-                    rtpcFile.Clear();
-                    ProcessRTPC(currentFileName);
-                    showAll = true;
-                }
-            }
+        DrawMainMenuBar(window);
+        DrawPropertyEditor(nullptr, showAll);
 
-            ImGui::SameLine();
-
-            if (ImGui::Button("Reload File")) {
-                rtpcFile.Clear();
-                ProcessRTPC(currentFileName);
-                showAll = true;
-            }
-
-            ImGui::SameLine();
-
-            if (ImGui::Button("Save File")) {
-                writtenStrings.clear();
-                std::ofstream file(currentFileName, std::ios::binary);
-                rtpcFile.Serialize(file);
-                file.close();
-            }
-
-            ImGui::SameLine();
-
-            if (ImGui::Button("Save File As")) {
-                if (FileSystem::SaveFileDialog(currentFileName)) {
-                    writtenStrings.clear();
-
-                    std::ofstream file(currentFileName, std::ios::binary);
-                    rtpcFile.Serialize(file);
-                    file.close();
-                }
-            }
-
-            ImGui::SameLine();
-
-            ImGui::Checkbox("Enable Prop Search", &searchOn);
-            ImGui::SameLine();
-            ImGui::SetNextItemWidth(-FLT_MIN);
-            ImGui::InputText("##value", &searchStr);
-        }
-        ImGui::End();
-
-        ShowPropertyEditor(nullptr, showAll);
         if (showAll)
             showAll = false;
 
@@ -362,3 +448,9 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, in
 
     return 0;
 }
+
+#ifdef _DEBUG
+int main(int argc, char** argv) {
+    return WinMain(GetModuleHandleA(nullptr), nullptr, GetCommandLineA(), SW_SHOWNORMAL);
+}
+#endif
