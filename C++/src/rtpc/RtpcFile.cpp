@@ -42,8 +42,8 @@ bool RtpcFile::Serialize(std::ofstream& file) {
 		return mainNode.Serialize_V1(file);
 	else if (Version == 2)
 		return mainNode.Serialize_V2(file);
-	else if (Version == 3)
-		return mainNode.Serialize_V3(file);
+	//else if (Version == 3)
+	//	return mainNode.Serialize_V3(file);
 
 	printf("[ERRO]: (Serialize) RTPC file version not supported: %d\n", Version);
 

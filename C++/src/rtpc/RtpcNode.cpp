@@ -1,5 +1,7 @@
 #include "RtpcNode.hpp"
 
+#include <algorithm>
+
 vector<string> writtenStrings;
 
 RtpcNode::RtpcNode() {
@@ -384,6 +386,111 @@ bool RtpcNode::Serialize_V2(std::ofstream& file, bool writeSelf) {
 }
 
 bool RtpcNode::Serialize_V3(std::ofstream& file, bool writeSelf) {
+	// TODO: Figure out this garbage
+	// 
+	// 1. Write ONLY headers (like V2, with valid props count)
+	// 
+	// 2. Write all strings sorted and only one instance of each
+	// 
+	// 3. Write all vec2?
+	// 4. Write all vec3?
+	// 
+	// Looks like props data other than u32, f32 are stored the same way like strings? (shared values between props)
 
 	return false;
 }
+
+/*bool RtpcNode::Serialize_V3_WriteHeaders(std::ofstream& file, bool writeSelf) {
+	// First pass: Write headers + valid props count
+	// Second pass: Write all strings sorted
+	// Third pass: Write all vec2
+	// Fourth pass: Write all 
+
+	// Write header
+	if (writeSelf) {
+		file.write((char*)&HashedName, sizeof(u32));
+		file.write((char*)&DataOffset, sizeof(u32));
+		file.write((char*)&PropsCount, sizeof(u16));
+		file.write((char*)&ChildCount, sizeof(u16));
+
+#ifdef _DEBUG
+		file.flush(); // DEBUG
+#endif
+	}
+
+	// Write props headers and count valid props
+	u32 cnt = 0;
+
+	for (u16 i = 0; i < PropsCount; i++) {
+		file.write((char*)&props[i].HashedName, sizeof(u32));
+		file.write((char*)&props[i].DataRaw, sizeof(u32));
+		file.write((char*)&props[i].Type, sizeof(u8));
+
+		if (props[i].Type != 0)
+			cnt++;
+
+#ifdef _DEBUG
+		file.flush(); // DEBUG
+#endif
+	}
+
+	// 4-byte align after props headers
+	if (PropsCount)
+		WritePadding(file, 4);
+
+	for (u16 i = 0; i < ChildCount; i++) {
+		file.write((char*)&childs[i].HashedName, sizeof(u32));
+		file.write((char*)&childs[i].DataOffset, sizeof(u32));
+		file.write((char*)&childs[i].PropsCount, sizeof(u16));
+		file.write((char*)&childs[i].ChildCount, sizeof(u16));
+
+#ifdef _DEBUG
+		file.flush(); // DEBUG
+#endif
+	}
+
+	// Write number of valid props
+	file.write((char*)&cnt, sizeof(u32));
+#ifdef _DEBUG
+	file.flush(); // DEBUG
+#endif
+
+	// Write child nodes
+	for (u16 i = 0; i < ChildCount; i++)
+		childs[i].Serialize_V3_WriteHeaders(file, false);
+
+	return true;
+}
+
+bool RtpcNode::Serialize_V3_GetStrings(std::ofstream& file, RtpcNode& node) {
+	// Get list of all strings
+	for (u16 i = 0; i < node.PropsCount; i++) {
+		if (node.props[i].Type == 3) {
+			// Make sure we only write one instance of a string
+			if (!std::count(writtenStrings.begin(), writtenStrings.end(), node.props[i].DataStr)) {
+				writtenStrings.emplace_back(node.props[i].DataStr);
+			}
+		}
+	}
+
+	for (u16 i = 0; i < node.ChildCount; i++)
+		Serialize_V3_GetStrings(file, node.childs[i]);
+
+	return true;
+}
+
+bool RtpcNode::Serialize_V3_WriteStrings(std::ofstream& file) {
+	std::sort(writtenStrings.begin(), writtenStrings.end());
+
+	for (size_t i = 0; i < writtenStrings.size(); i++) {
+		file.write(writtenStrings[i].c_str(), strlen(writtenStrings[i].c_str()) + 1);
+
+#ifdef _DEBUG
+		file.flush(); // DEBUG
+#endif
+	}
+
+	WritePadding(file, 4);
+
+	return true;
+}*/
