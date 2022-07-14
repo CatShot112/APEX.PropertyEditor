@@ -248,7 +248,7 @@ void DrawNode(RtpcNode& node) {
                 ImGui::TreeNodeEx("", flags, "%08X", node.props[i].HashedName);
 
             ImGui::TableSetColumnIndex(1);
-            ImGui::Text(propTypeNames[node.props[i].Type].c_str());
+            ImGui::Text("%s", propTypeNames[node.props[i].Type].c_str());
 
             ImGui::TableSetColumnIndex(2);
             ImGui::SetNextItemWidth(-FLT_MIN);
@@ -569,7 +569,7 @@ void DrawSearch() {
 }
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdShow) {
-    //InitHashMap();
+    InitHashMap();
 
     sf::RenderWindow window(sf::VideoMode(1280, 720), "APEX.PropertyEditor");
     sf::Clock clock;
