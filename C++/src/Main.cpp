@@ -28,12 +28,17 @@
 
 #pragma comment(lib, "opengl32.lib")
 
+using Kbd = sf::Keyboard;
+
 // Global variables
 RtpcFile rtpcFile;
 std::wstring currentFileName;
 
 bool searchOn = false;
 bool showAll = true;
+bool fileOpened = false;
+bool shortcutEnabled = false;
+
 bool showAbout = false;
 bool showSearch = false;
 
@@ -126,6 +131,77 @@ void ProcessRTPC(std::string fileName) {
     file.close();
 
     DehashNames(rtpcFile.mainNode);
+}
+
+void ProcessShortcuts() {
+    if (ImGui::IsWindowFocused()) {
+        if (!shortcutEnabled) {
+            shortcutEnabled = true;
+
+            // File menu
+            {
+                // Open
+                if (Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::O)) {
+                    if (FileSystem::OpenFileDialog(currentFileName)) {
+                        rtpcFile.Clear();
+
+                        ProcessRTPC(currentFileName);
+
+                        showAll = true;
+                        fileOpened = true;
+                    }
+                }
+                // Save
+                else if (fileOpened && Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::S)) {
+                    writtenStrings.clear();
+
+                    std::ofstream file(currentFileName, std::ios::binary);
+                    rtpcFile.Serialize(file);
+                    file.close();
+                }
+                // Save As..
+                else if (fileOpened && Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::LShift) && Kbd::isKeyPressed(Kbd::S)) {
+                    if (FileSystem::SaveFileDialog(currentFileName)) {
+                        writtenStrings.clear();
+
+                        std::ofstream file(currentFileName, std::ios::binary);
+                        rtpcFile.Serialize(file);
+                        file.close();
+                    }
+                }
+            }
+
+            // Edit menu
+            {
+                // Undo
+                if (fileOpened && Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::Z)) {
+                    // Not needed? :D
+                }
+                // Redo
+                else if (fileOpened && Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::Y)) {
+                    // Not needed? :D
+                }
+                // Cut
+                else if (fileOpened && Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::X)) {
+                    // Not needed? :D
+                }
+                // Copy
+                else if (fileOpened && Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::C)) {
+                    // Not needed? :D
+                }
+                // Paste
+                else if (fileOpened && Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::V)) {
+                    // Not needed? :D
+                }
+                // Search
+                else if (fileOpened && Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::F)) {
+                    showSearch = !showSearch;
+                }
+            }
+
+            shortcutEnabled = false;
+        }
+    }
 }
 
 // GUI
@@ -288,6 +364,8 @@ void DrawPropertyEditor(bool* open) {
         return;
     }
 
+    ProcessShortcuts();
+
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
 
     if (ImGui::BeginTable("split", 3, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable)) {
@@ -304,18 +382,24 @@ void DrawPropertyEditor(bool* open) {
 }
 
 void DrawMainMenuBar(sf::RenderWindow& window) {
-    if (ImGui::BeginMainMenuBar()) {
-        if (ImGui::BeginMenu("File")) {
-            if (ImGui::MenuItem("Open", "CTRL+O")) {
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("Open", "CTRL+O"))
+            {
                 if (FileSystem::OpenFileDialog(currentFileName)) {
                     rtpcFile.Clear();
 
                     ProcessRTPC(currentFileName);
+
                     showAll = true;
+                    fileOpened = true;
                 }
             }
 
-            if (ImGui::BeginMenu("Open Recent")) {
+            if (ImGui::BeginMenu("Open Recent"))
+            {
                 if (recentFiles.size() <= 0) {
                     ImGui::Text("No History Yet..");
                 }
@@ -327,25 +411,29 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
                         if (ImGui::MenuItem(recentFiles[i].c_str())) {
                             rtpcFile.Clear();
                             ProcessRTPC(recentFiles[i]);
+
                             showAll = true;
+                            fileOpened = true;
                         }
                     }
                 }
-
 
                 ImGui::EndMenu();
             }
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Save", "CTRL+S")) {
+            if (ImGui::MenuItem("Save", "CTRL+S", nullptr, fileOpened))
+            {
                 writtenStrings.clear();
+
                 std::ofstream file(currentFileName, std::ios::binary);
                 rtpcFile.Serialize(file);
                 file.close();
             }
 
-            if (ImGui::MenuItem("Save As..", "CTRL+SHIFT+S")) {
+            if (ImGui::MenuItem("Save As..", "CTRL+SHIFT+S", nullptr, fileOpened))
+            {
                 if (FileSystem::SaveFileDialog(currentFileName)) {
                     writtenStrings.clear();
 
@@ -357,39 +445,48 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Reload")) {
+            if (ImGui::MenuItem("Reload", "", nullptr, fileOpened))
+            {
                 rtpcFile.Clear();
                 ProcessRTPC(currentFileName);
+
                 showAll = true;
+                fileOpened = true;
             }
 
-            if (ImGui::MenuItem("Rename")) {
+            if (ImGui::MenuItem("Rename", "", nullptr, false))
+            {
 
             }
 
-            if (ImGui::MenuItem("Close")) {
+            if (ImGui::MenuItem("Close", "", nullptr, fileOpened))
+            {
                 rtpcFile.Clear();
+
                 showAll = true;
+                fileOpened = false;
             }
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Exit")) {
+            if (ImGui::MenuItem("Exit"))
+            {
                 window.close();
             }
 
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Edit")) {
-            if (ImGui::MenuItem("Undo", "CTLR+Z")) {}
-            if (ImGui::MenuItem("Redo", "CTRL+Y")) {}
+        if (ImGui::BeginMenu("Edit"))
+        {
+            if (ImGui::MenuItem("Undo", "CTLR+Z", nullptr, false)) {}
+            if (ImGui::MenuItem("Redo", "CTRL+Y", nullptr, false)) {}
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-            if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+            if (ImGui::MenuItem("Cut", "CTRL+X", nullptr, false)) {}
+            if (ImGui::MenuItem("Copy", "CTRL+C", nullptr, false)) {}
+            if (ImGui::MenuItem("Paste", "CTRL+V", nullptr, false)) {}
 
             ImGui::Separator();
 
@@ -400,9 +497,10 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Options")) {
-            if (ImGui::MenuItem("Colors")) {}
-            if (ImGui::MenuItem("Settings")) {}
+        if (ImGui::BeginMenu("Options"))
+        {
+            if (ImGui::MenuItem("Colors", "", nullptr, false)) {}
+            if (ImGui::MenuItem("Settings", "", nullptr, false)) {}
 
             ImGui::EndMenu();
         }
@@ -414,7 +512,7 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Console")) {}
+            if (ImGui::MenuItem("Console", "", nullptr, false)) {}
 
             ImGui::EndMenu();
         }
