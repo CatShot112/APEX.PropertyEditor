@@ -34,6 +34,9 @@ std::wstring currentFileName;
 
 bool searchOn = false;
 bool showAll = true;
+bool showAbout = false;
+bool showSearch = false;
+
 std::string searchStr;
 
 std::unordered_map<u32, string> hashmap;
@@ -126,7 +129,7 @@ void ProcessRTPC(std::string fileName) {
 }
 
 // GUI
-void DrawNode(RtpcNode& node, bool showAll) {
+void DrawNode(RtpcNode& node) {
     ImGui::PushID(&node);
 
     ImGui::TableNextRow();
@@ -269,7 +272,7 @@ void DrawNode(RtpcNode& node, bool showAll) {
         }
 
         for (int i = 0; i < node.ChildCount; i++)
-            DrawNode(node.childs[i], showAll);
+            DrawNode(node.childs[i]);
 
         ImGui::TreePop();
     }
@@ -277,7 +280,7 @@ void DrawNode(RtpcNode& node, bool showAll) {
     ImGui::PopID();
 }
 
-void DrawPropertyEditor(bool* open, bool showAll) {
+void DrawPropertyEditor(bool* open) {
     ImGui::SetNextWindowSize(ImVec2(430, 450), ImGuiCond_FirstUseEver);
 
     if (!ImGui::Begin("Property editor", open)) {
@@ -288,10 +291,13 @@ void DrawPropertyEditor(bool* open, bool showAll) {
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
 
     if (ImGui::BeginTable("split", 3, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable)) {
-        DrawNode(rtpcFile.mainNode, showAll);
+        DrawNode(rtpcFile.mainNode);
 
         ImGui::EndTable();
     }
+
+    if (showAll)
+        showAll = false;
 
     ImGui::PopStyleVar();
     ImGui::End();
@@ -387,7 +393,9 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Search", "CTRL+F")) {}
+            if (ImGui::MenuItem("Search", "CTRL+F", nullptr, false)) {
+                showSearch = true;
+            }
 
             ImGui::EndMenu();
         }
@@ -400,7 +408,9 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
         }
 
         if (ImGui::BeginMenu("Help")) {
-            if (ImGui::MenuItem("About")) {}
+            if (ImGui::MenuItem("About")) {
+                showAbout = true;
+            }
 
             ImGui::Separator();
 
@@ -410,6 +420,53 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
         }
 
         ImGui::EndMainMenuBar();
+    }
+}
+
+void DrawAbout() {
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+
+    if (ImGui::Begin("About", &showAbout, flags))
+    {
+        if (ImGui::BeginTabBar("About"))
+        {
+            if (ImGui::BeginTabItem("Contributors")) {
+                ImGui::BulletText("CatShot112");
+
+                ImGui::EndTabItem();
+            }
+
+            if (ImGui::BeginTabItem("Libraries")) {
+                ImGui::BulletText("ImGui");
+                ImGui::BulletText("ImGui-SFML");
+                ImGui::BulletText("SFML");
+
+                ImGui::EndTabItem();
+            }
+
+            if (ImGui::BeginTabItem("License")) {
+                ImGui::Text("LICENSE");
+
+                ImGui::EndTabItem();
+            }
+
+            ImGui::EndTabBar();
+        }
+
+        ImGui::End();
+    }
+}
+
+void DrawSearch() {
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+
+    if (ImGui::Begin("Search", &showSearch, flags)) {
+        ImGui::Checkbox("Enable", &searchOn);
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(-FLT_MIN);
+        ImGui::InputText("##value", &searchStr);
+
+        ImGui::End();
     }
 }
 
@@ -437,10 +494,12 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, in
         ImGui::DockSpaceOverViewport();
 
         DrawMainMenuBar(window);
-        DrawPropertyEditor(nullptr, showAll);
+        DrawPropertyEditor(nullptr);
 
-        if (showAll)
-            showAll = false;
+        if (showAbout)
+            DrawAbout();
+        if (showSearch)
+            DrawSearch();
 
         window.clear();
         ImGui::SFML::Render(window);
