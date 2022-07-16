@@ -479,18 +479,37 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
 
         if (ImGui::BeginMenu("Edit"))
         {
-            if (ImGui::MenuItem("Undo", "CTLR+Z", nullptr, false)) {}
-            if (ImGui::MenuItem("Redo", "CTRL+Y", nullptr, false)) {}
+            if (ImGui::MenuItem("Undo", "CTLR+Z", nullptr, fileOpened))
+            {
+
+            }
+
+            if (ImGui::MenuItem("Redo", "CTRL+Y", nullptr, fileOpened))
+            {
+
+            }
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Cut", "CTRL+X", nullptr, false)) {}
-            if (ImGui::MenuItem("Copy", "CTRL+C", nullptr, false)) {}
-            if (ImGui::MenuItem("Paste", "CTRL+V", nullptr, false)) {}
+            if (ImGui::MenuItem("Cut", "CTRL+X", nullptr, fileOpened))
+            {
+
+            }
+
+            if (ImGui::MenuItem("Copy", "CTRL+C", nullptr, fileOpened))
+            {
+
+            }
+
+            if (ImGui::MenuItem("Paste", "CTRL+V", nullptr, fileOpened))
+            {
+
+            }
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Search", "CTRL+F", nullptr, false)) {
+            if (ImGui::MenuItem("Search", "CTRL+F", nullptr, fileOpened))
+            {
                 showSearch = true;
             }
 
@@ -499,20 +518,32 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
 
         if (ImGui::BeginMenu("Options"))
         {
-            if (ImGui::MenuItem("Colors", "", nullptr, false)) {}
-            if (ImGui::MenuItem("Settings", "", nullptr, false)) {}
+            if (ImGui::MenuItem("Colors", "", nullptr, false))
+            {
+
+            }
+
+            if (ImGui::MenuItem("Settings", "", nullptr, false))
+            {
+
+            }
 
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("Help")) {
-            if (ImGui::MenuItem("About")) {
+        if (ImGui::BeginMenu("Help"))
+        {
+            if (ImGui::MenuItem("About"))
+            {
                 showAbout = true;
             }
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Console", "", nullptr, false)) {}
+            if (ImGui::MenuItem("Console", "", nullptr, false))
+            {
+
+            }
 
             ImGui::EndMenu();
         }
