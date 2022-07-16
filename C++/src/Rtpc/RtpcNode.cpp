@@ -33,7 +33,7 @@ void RtpcNode::WritePadding(std::ofstream& file, int alignTo) {
 #endif
 }
 
-bool RtpcNode::Deserialize(std::ifstream& file) {
+bool RtpcNode::Deserialize(std::ifstream& file, bool handleShared) {
 	// Read header
 	file.read((char*)&HashedName, sizeof(u32));
 	file.read((char*)&DataOffset, sizeof(u32));

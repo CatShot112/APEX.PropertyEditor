@@ -25,7 +25,7 @@ public:
 
 	void Clear();
 
-	bool Deserialize(std::ifstream& file);
+	bool Deserialize(std::ifstream& file, bool handleShared = false);
 
 	bool Serialize_V1(std::ofstream& file, bool writeSelf = true);
 	bool Serialize_V2(std::ofstream& file, bool writeSelf = true);

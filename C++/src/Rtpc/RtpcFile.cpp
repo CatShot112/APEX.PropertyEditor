@@ -23,7 +23,10 @@ bool RtpcFile::Deserialize(std::ifstream& file) {
 	}
 
 	if (Version == 1 || Version == 2 || Version == 3) {
-		mainNode.Deserialize(file);
+		if (Version == 3)
+			mainNode.Deserialize(file, true);
+		else
+			mainNode.Deserialize(file);
 	}
 	else {
 		printf("[ERRO]: (Deserialize) RTPC file version not supported: %d\n", Version);

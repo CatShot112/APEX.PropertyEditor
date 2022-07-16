@@ -23,5 +23,5 @@ public:
 
 	RtpcProp();
 
-	bool Deserialize(std::ifstream& file);
+	bool Deserialize(std::ifstream& file, bool handleShared = false);
 };

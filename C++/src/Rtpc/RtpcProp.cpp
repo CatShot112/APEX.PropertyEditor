@@ -12,7 +12,7 @@ RtpcProp::RtpcProp() {
 	IsShared = false;
 }
 
-bool RtpcProp::Deserialize(std::ifstream& file) {
+bool RtpcProp::Deserialize(std::ifstream& file, bool handleShared) {
 	// Read header
 	file.read((char*)&HashedName, sizeof(u32));
 	file.read((char*)&DataRaw, sizeof(u32));
@@ -25,11 +25,13 @@ bool RtpcProp::Deserialize(std::ifstream& file) {
 	if (Type != 0 && Type != 1 && Type != 2)
 		file.seekg(DataRaw);
 
-	if (!std::count(readOffsets.begin(), readOffsets.end(), DataRaw)) {
-		readOffsets.emplace_back(DataRaw);
-	}
-	else {
-		IsShared = true;
+	if (handleShared) {
+		if (!std::count(readOffsets.begin(), readOffsets.end(), DataRaw)) {
+			readOffsets.emplace_back(DataRaw);
+		}
+		else {
+			IsShared = true;
+		}
 	}
 
 	switch (Type) {
