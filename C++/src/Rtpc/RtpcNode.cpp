@@ -114,9 +114,11 @@ bool RtpcNode::Serialize_V1(std::ofstream& file, bool writeSelf) {
 	for (u16 i = 0; i < PropsCount; i++) {
 		switch (props[i].Type) {
 		case 4: // Vec2
+			// Prob need align to 4
 			file.write((char*)&props[i].DataFinal[0], sizeof(float) * 2);
 			break;
 		case 5: // Vec3
+			// Prob need align to 4
 			file.write((char*)&props[i].DataFinal[0], sizeof(float) * 3);
 			break;
 		case 6: // Vec4
@@ -132,10 +134,12 @@ bool RtpcNode::Serialize_V1(std::ofstream& file, bool writeSelf) {
 			file.write((char*)&props[i].DataFinal[0], sizeof(float) * 4 * 4);
 			break;
 		case 13: // ObjID
+			WritePadding(file, 4); // Align to 5 bytes before writing
 			file.write((char*)&props[i].DataFinal[0], sizeof(u64));
 			break;
 		case 9: // A[U32]
 		{
+			WritePadding(file, 4); // Align to 4 bytes before writing
 			u32 arraySize = (u32)props[i].DataFinal.GetSize() / sizeof(u32);
 			file.write((char*)&arraySize, sizeof(u32));
 
@@ -146,6 +150,7 @@ bool RtpcNode::Serialize_V1(std::ofstream& file, bool writeSelf) {
 		}
 		case 10: // A[F32]
 		{
+			// Prob need align to 4
 			u32 arraySize = (u32)props[i].DataFinal.GetSize() / sizeof(float);
 			file.write((char*)&arraySize, sizeof(u32));
 
@@ -156,6 +161,7 @@ bool RtpcNode::Serialize_V1(std::ofstream& file, bool writeSelf) {
 		}
 		case 11: // A[U8]
 		{
+			// Prob need align to 4
 			u32 arraySize = (u32)props[i].DataFinal.GetSize() / sizeof(u8);
 			file.write((char*)&arraySize, sizeof(u32));
 
@@ -166,6 +172,7 @@ bool RtpcNode::Serialize_V1(std::ofstream& file, bool writeSelf) {
 		}
 		case 14: // Event
 		{
+			// Prob need align to 4
 			u32 arraySize = (u32)props[i].DataFinal.GetSize() / sizeof(u64);
 			file.write((char*)&arraySize, sizeof(u32));
 
@@ -186,30 +193,24 @@ bool RtpcNode::Serialize_V1(std::ofstream& file, bool writeSelf) {
 #endif
 			}
 
-			// Check if next property type that is not 0 or 1 or 2 is string and if so, dont add padding.
-			bool pad = true;
+			// We need to align strings to 4 bytes before other data type (except none, u32, f32), and if string is last property
+			// TODO: Comment this properly :)
+			if (i == PropsCount - 1)
+				WritePadding(file, 4);
 
 			if (i + 1 <= PropsCount - 1) {
+				bool pad = true;
+
 				if (props[i + 1].Type == 0 || props[i + 1].Type == 1 || props[i + 1].Type == 2) {
 					for (u16 j = i + 1; j < PropsCount - 1; j++) {
-						if (props[j].Type != 0 && props[j].Type != 1 && props[j].Type != 2) {
-							if (props[j].Type == 3) {
-								pad = false;
-								break;
-							}
-
-							break;
-						}
+						if (props[j + 1].Type == 3)
+							pad = false;
 					}
 				}
-				else if (props[i + 1].Type == 3) {
-					pad = false;
-					break;
-				}
-			}
 
-			if (pad)
-				WritePadding(file, 4);
+				if (pad && props[i + 1].Type != 3)
+					WritePadding(file, 4);
+			}
 
 			break;
 		}
