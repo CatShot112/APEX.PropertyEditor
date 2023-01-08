@@ -4,8 +4,31 @@
 #include <Windows.h>
 #include <ShObjIdl.h>
 
+
+std::string utf8_encode(std::wstring wstr) {
+    if (wstr.empty())
+        return std::string();
+
+    int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), nullptr, 0, nullptr, nullptr);
+    std::string str(sizeNeeded, 0);
+    WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &str[0], sizeNeeded, nullptr, nullptr);
+
+    return str;
+}
+
+std::wstring utf8_decode(std::string str) {
+    if (str.empty())
+        return std::wstring();
+
+    int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), nullptr, 0);
+    std::wstring wstr(sizeNeeded, 0);
+    MultiByteToWideChar(CP_UTF7, 0, &str[0], (int)str.size(), &wstr[0], sizeNeeded);
+
+    return wstr;
+}
+
 namespace FileSystem {
-	bool OpenFileDialog(std::wstring& currentFileName) {
+	bool OpenFileDialog(std::string& currentFileName) {
         bool result = false;
 
         if (SUCCEEDED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE))) {
@@ -26,7 +49,7 @@ namespace FileSystem {
                         PWSTR pszFilePath = nullptr;
 
                         if (SUCCEEDED(pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath))) {
-                            currentFileName = pszFilePath;
+                            currentFileName = utf8_encode(pszFilePath);
 
                             result = true;
 
@@ -46,7 +69,7 @@ namespace FileSystem {
         return result;
 	}
 
-    bool SaveFileDialog(std::wstring& currentFileName) {
+    bool SaveFileDialog(std::string& currentFileName) {
         bool result = false;
 
         if (SUCCEEDED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE))) {
@@ -60,7 +83,7 @@ namespace FileSystem {
 
                 pFileSave->SetFileTypes(2, rgSpec);
                 pFileSave->SetDefaultExtension(L"bin");
-                pFileSave->SetFileName(currentFileName.substr(currentFileName.rfind(L"\\") + 1).c_str());
+                pFileSave->SetFileName(utf8_decode(currentFileName.substr(currentFileName.rfind("\\") + 1)).c_str());
 
                 if (SUCCEEDED(pFileSave->Show(nullptr))) {
                     IShellItem* pItem = nullptr;
@@ -69,7 +92,7 @@ namespace FileSystem {
                         PWSTR pszFilePath = nullptr;
 
                         if (SUCCEEDED(pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath))) {
-                            currentFileName = pszFilePath;
+                            currentFileName = utf8_encode(pszFilePath);
 
                             result = true;
 

@@ -3,6 +3,6 @@
 #include <string>
 
 namespace FileSystem {
-	bool OpenFileDialog(std::wstring& currentFileName);
-	bool SaveFileDialog(std::wstring& currentFileName);
+	bool OpenFileDialog(std::string& currentFileName);
+	bool SaveFileDialog(std::string& currentFileName);
 }

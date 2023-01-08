@@ -32,7 +32,7 @@ using Kbd = sf::Keyboard;
 
 // Global variables
 RtpcFile rtpcFile;
-std::wstring currentFileName;
+std::string currentFileName;
 
 bool searchOn = false;
 bool showAll = true;
