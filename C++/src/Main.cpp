@@ -169,6 +169,25 @@ void ProcessShortcuts() {
                         file.close();
                     }
                 }
+                // Reload
+                else if (fileOpened && Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::R)) {
+                    rtpcFile.Clear();
+                    ProcessRTPC(currentFileName);
+
+                    showAll = true;
+                    fileOpened = true;
+                }
+                // Rename
+                else if (fileOpened && Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::LShift) && Kbd::isKeyPressed(Kbd::R)) {
+                    // TODO: Open rename file dialog.
+                }
+                // Close
+                else if (fileOpened && Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::Q)) {
+                    rtpcFile.Clear();
+
+                    showAll = true;
+                    fileOpened = false;
+                }
             }
 
             // Edit menu
@@ -445,7 +464,7 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Reload", "", nullptr, fileOpened))
+            if (ImGui::MenuItem("Reload", "CTRL+R", nullptr, fileOpened))
             {
                 rtpcFile.Clear();
                 ProcessRTPC(currentFileName);
@@ -454,12 +473,12 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
                 fileOpened = true;
             }
 
-            if (ImGui::MenuItem("Rename", "", nullptr, false))
+            if (ImGui::MenuItem("Rename", "CTRL+SHIFT+R", nullptr, false))
             {
 
             }
 
-            if (ImGui::MenuItem("Close", "", nullptr, fileOpened))
+            if (ImGui::MenuItem("Close", "CTRL+Q", nullptr, fileOpened))
             {
                 rtpcFile.Clear();
 
