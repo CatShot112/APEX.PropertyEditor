@@ -251,7 +251,6 @@ void DrawNode(RtpcNode& node) {
                 continue;
             if (searchOn && node.props[i].DehashedName.find(searchStr) == std::string::npos)
                 continue;
-                
 
             ImGui::PushID(&node.props[i]);
 
@@ -618,7 +617,7 @@ void DrawSearch() {
     }
 }
 
-int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdShow) {
+int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In_ LPSTR cmdLine, _In_ int cmdShow) {
     InitHashMap();
 
     sf::RenderWindow window(sf::VideoMode(1280, 720), "APEX.PropertyEditor");
