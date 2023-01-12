@@ -14,10 +14,16 @@ Compiled binaries can be found [here](https://github.com/CatShot112/APEX.Propert
 ## Build
 You will need to download compiled SFML binaries from [here](https://github.com/CatShot112/APEX.PropertyEditor/releases) and put libraries in `C++/external/lib/x64/`. Then just open solution in Visual Studio 2022 and compile.
 
+## Known issues
+- After opening big file or file with a lot of nodes/props the program is slow AF.
+- Program can produce corrupted files when saving.
+- ???
+
 ## Todo
-- [ ] Implement serializer for RTPC version 3.
+- [ ] Implement serializer for RTPC version 3 (WIP).
 - [ ] Implement search properties function.
-- [ ] Add ability to edit strings.
+- [ ] Add ability to edit strings and shared values (WIP).
+- [ ] Everything else :P
 
 ## Credits
 [kk49](https://github.com/kk49) - For creating [((DE)C)onstructor for (A)pps (DECA)](https://github.com/kk49/deca)
