@@ -1,8 +1,14 @@
 #include "RtpcNode.hpp"
+#include "../Structs.hpp"
 
 #include <algorithm>
 
 vector<string> writtenStrings;
+
+unordered_map<string, u32> strings;
+unordered_map<string, u32> vec2s;
+unordered_map<string, u32> vec3s;
+unordered_map<string, u32> vec4s;
 
 RtpcNode::RtpcNode() {
 	HashedName = 0;
@@ -19,6 +25,13 @@ void RtpcNode::Clear() {
 
 	props.clear();
 	childs.clear();
+}
+
+void RtpcNode::ClearWrite() {
+	strings.clear();
+	vec2s.clear();
+	vec3s.clear();
+	vec4s.clear();
 }
 
 void RtpcNode::WritePadding(std::ofstream& file, int alignTo) {
@@ -386,7 +399,128 @@ bool RtpcNode::Serialize_V2(std::ofstream& file, bool writeSelf) {
 	return true;
 }
 
-bool RtpcNode::Serialize_V3(std::ofstream& file, bool writeSelf) {
+
+void RtpcNode::ConstructStrings() {
+	for (u16 i = 0; i < PropsCount; i++) {
+		if (props[i].Type == 3) {
+			if (!strings.count(props[i].DataStr)) {
+				//file.write(props[i].DataStr.c_str(), strlen(props[i].DataStr.c_str()) + 1);
+				strings[props[i].DataStr] = props[i].DataRaw; // String -> offset
+			}
+			else {
+				props[i].DataRaw = strings.at(props[i].DataStr); // Update offset to existing string.
+			}
+		}
+	}
+
+	for (u16 i = 0; i < ChildCount; i++)
+		childs[i].ConstructStrings();
+}
+
+void RtpcNode::ConstructVec2() {
+	for (u16 i = 0; i < PropsCount; i++) {
+		if (props[i].Type != 4)
+			continue;
+
+		string vec2 = props[i].DataFinal.ToString();
+
+		if (!vec2s.count(vec2))
+			vec2s[vec2] = props[i].DataRaw;
+		else
+			props[i].DataRaw = vec2s.at(vec2);
+	}
+
+	for (u16 i = 0; i < ChildCount; i++)
+		childs[i].ConstructVec2();
+}
+
+void RtpcNode::ConstructVec3() {
+	for (u16 i = 0; i < PropsCount; i++) {
+		if (props[i].Type != 5)
+			continue;
+
+		string vec3 = props[i].DataFinal.ToString();
+
+		if (!vec3s.count(vec3))
+			vec3s[vec3] = props[i].DataRaw;
+		else
+			props[i].DataRaw = vec2s.at(vec3);
+	}
+
+	for (u16 i = 0; i < ChildCount; i++)
+		childs[i].ConstructVec3();
+}
+
+void RtpcNode::ConstructVec4() {
+	for (u16 i = 0; i < PropsCount; i++) {
+		if (props[i].Type != 5)
+			continue;
+
+		string vec4 = props[i].DataFinal.ToString();
+
+		if (!vec4s.count(vec4))
+			vec4s[vec4] = props[i].DataRaw;
+		else
+			props[i].DataRaw = vec2s.at(vec4);
+	}
+
+	for (u16 i = 0; i < ChildCount; i++)
+		childs[i].ConstructVec4();
+}
+
+bool RtpcNode::Serialize_V3_Headers(std::ofstream& file, bool writeSelf) {
+	if (writeSelf) {
+		file.write((char*)&HashedName, sizeof(u32));
+		file.write((char*)&DataOffset, sizeof(u32));
+		file.write((char*)&PropsCount, sizeof(u16));
+		file.write((char*)&ChildCount, sizeof(u16));
+
+#ifdef _DEBUG
+		file.flush(); // DEBUG
+#endif
+	}
+
+	u32 cnt = 0;
+	for (u16 i = 0; i < PropsCount; i++) {
+		file.write((char*)&props[i].HashedName, sizeof(u32));
+		file.write((char*)&props[i].DataRaw, sizeof(u32));
+		file.write((char*)&props[i].Type, sizeof(u8));
+
+		if (props[i].Type != 0)
+			cnt++;
+
+#ifdef _DEBUG
+		file.flush(); // DEBUG
+#endif
+	}
+
+	if (PropsCount)
+		WritePadding(file, 4);
+
+#ifdef _DEBUG
+	file.flush(); // DEBUG
+#endif
+
+	for (u16 i = 0; i < ChildCount; i++) {
+		file.write((char*)&childs[i].HashedName, sizeof(u32));
+		file.write((char*)&childs[i].DataOffset, sizeof(u32));
+		file.write((char*)&childs[i].PropsCount, sizeof(u16));
+		file.write((char*)&childs[i].ChildCount, sizeof(u16));
+
+#ifdef _DEBUG
+		file.flush(); // DEBUG
+#endif
+	}
+
+	file.write((char*)&cnt, sizeof(u32));
+
+#ifdef _DEBUG
+	file.flush(); // DEBUG
+#endif
+
+	for (u16 i = 0; i < ChildCount; i++)
+		childs[i].Serialize_V3_Headers(file, false);
+
 	// TODO: Figure out this garbage
 	// 
 	// 1. Write ONLY headers (like V2, with valid props count)
@@ -398,7 +532,112 @@ bool RtpcNode::Serialize_V3(std::ofstream& file, bool writeSelf) {
 	// 
 	// Looks like props data other than u32, f32 are stored the same way like strings? (shared values between props)
 
-	return false;
+	return true;
+}
+
+bool RtpcNode::Serialize_V3_Strings(std::ofstream& file) {
+	vector<string> vStrings;
+	
+	// Construct vector of strings to write from map and sort it.
+	for (auto& it : strings)
+		vStrings.emplace_back(it.first);
+
+	std::sort(vStrings.begin(), vStrings.end());
+
+	// Write those strings to file.
+	for (auto& s : vStrings) {
+		file.write(s.c_str(), strlen(s.c_str()) + 1);
+
+#ifdef _DEBUG
+		file.flush(); // DEBUG
+#endif
+	}
+
+	if (vec2s.size())
+		WritePadding(file, 4);
+
+	return true;
+}
+
+bool RtpcNode::Serialize_V3_Vec2(std::ofstream& file) {
+	vector<std::pair<f32, f32>> vVec2s;
+
+	// Construct vector of vec2 (pairs) to write from map and sort it.
+	for (auto& it : vec2s) {
+		DataBuf data = it.first;
+		Vec2 vec2{};
+		
+		data.Read((char*)&vec2, sizeof(Vec2));
+		vVec2s.emplace_back(std::make_pair(vec2.x, vec2.y));
+	}
+
+	std::sort(vVec2s.begin(), vVec2s.end());
+
+	for (auto& v : vVec2s) {
+		file.write((char*)&v, sizeof(Vec2));
+
+#ifdef _DEBUG
+		file.flush(); // DEBUG
+#endif
+	}
+
+	if (vec3s.size())
+		WritePadding(file, 4);
+
+	return true;
+}
+
+bool RtpcNode::Serialize_V3_Vec3(std::ofstream& file) {
+	vector<std::tuple<f32, f32, f32>> vVec3s;
+
+	for (auto& it : vec3s) {
+		DataBuf data = it.first;
+		Vec3 vec3{};
+
+		data.Read((char*)&vec3, sizeof(Vec3));
+		vVec3s.emplace_back(std::make_tuple(vec3.x, vec3.y, vec3.z));
+	}
+
+	std::sort(vVec3s.begin(), vVec3s.end());
+
+	for (auto& v : vVec3s) {
+		file.write((char*)&v, sizeof(Vec3));
+
+#ifdef _DEBUG
+		file.flush(); // DEBUG
+#endif
+	}
+
+	if (vec4s.size())
+		WritePadding(file, 4);
+
+	return true;
+}
+
+bool RtpcNode::Serialize_V3_Vec4(std::ofstream& file) {
+	vector<std::tuple<f32, f32, f32, f32>> vVec4s;
+
+	for (auto& it : vec3s) {
+		DataBuf data = it.first;
+		Vec4 vec4{};
+
+		data.Read((char*)&vec4, sizeof(Vec3));
+		vVec4s.emplace_back(std::make_tuple(vec4.x, vec4.y, vec4.z, vec4.w));
+	}
+
+	std::sort(vVec4s.begin(), vVec4s.end());
+
+	for (auto& v : vVec4s) {
+		file.write((char*)&v, sizeof(Vec3));
+
+#ifdef _DEBUG
+		file.flush(); // DEBUG
+#endif
+	}
+
+	WritePadding(file, 4);
+
+	return true;
 }
 
 /*bool RtpcNode::Serialize_V3_WriteHeaders(std::ofstream& file, bool writeSelf) {

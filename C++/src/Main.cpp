@@ -271,6 +271,8 @@ void DrawNode(RtpcNode& node) {
             ImGui::TableSetColumnIndex(2);
             ImGui::SetNextItemWidth(-FLT_MIN);
 
+            ImGuiInputTextFlags isReadOnly = rtpcFile.Version == 3 ? ImGuiInputTextFlags_ReadOnly : 0;
+
             // U32
             if (node.props[i].Type == 1) {
                 ImGui::InputInt("##value", (int*)&node.props[i].DataRaw);
@@ -285,68 +287,68 @@ void DrawNode(RtpcNode& node) {
             }
             // Vec2
             else if (node.props[i].Type == 4) {
-                ImGui::InputFloat2("##value", (float*)&node.props[i].DataFinal[0]);
+                ImGui::InputFloat2("##value", (float*)&node.props[i].DataFinal[0], "%.3f", isReadOnly);
             }
             // Vec3
             else if (node.props[i].Type == 5) {
-                ImGui::InputFloat3("##value", (float*)&node.props[i].DataFinal[0]);
+                ImGui::InputFloat3("##value", (float*)&node.props[i].DataFinal[0], "%.3f", isReadOnly);
             }
             // Vec4
             else if (node.props[i].Type == 6) {
-                ImGui::InputFloat4("##value", (float*)&node.props[i].DataFinal[0]);
+                ImGui::InputFloat4("##value", (float*)&node.props[i].DataFinal[0], "%.3f", isReadOnly);
             }
             // Mat3x3
             else if (node.props[i].Type == 7) {
-                ImGui::InputFloat3("##value", (float*)&node.props[i].DataFinal[0]);
+                ImGui::InputFloat3("##value", (float*)&node.props[i].DataFinal[0], "%.3f", isReadOnly);
                 ImGui::SetNextItemWidth(-FLT_MIN);
 
-                ImGui::InputFloat3("##value", (float*)&node.props[i].DataFinal[12]);
+                ImGui::InputFloat3("##value", (float*)&node.props[i].DataFinal[12], "%.3f", isReadOnly);
                 ImGui::SetNextItemWidth(-FLT_MIN);
 
-                ImGui::InputFloat3("##value", (float*)&node.props[i].DataFinal[24]);
+                ImGui::InputFloat3("##value", (float*)&node.props[i].DataFinal[24], "%.3f", isReadOnly);
             }
             // Mat4x4
             else if (node.props[i].Type == 8) {
-                ImGui::InputFloat4("##value", (float*)&node.props[i].DataFinal[0]);
+                ImGui::InputFloat4("##value", (float*)&node.props[i].DataFinal[0], "%.3f", isReadOnly);
                 ImGui::SetNextItemWidth(-FLT_MIN);
 
-                ImGui::InputFloat4("##value", (float*)&node.props[i].DataFinal[16]);
+                ImGui::InputFloat4("##value", (float*)&node.props[i].DataFinal[16], "%.3f", isReadOnly);
                 ImGui::SetNextItemWidth(-FLT_MIN);
 
-                ImGui::InputFloat4("##value", (float*)&node.props[i].DataFinal[32]);
+                ImGui::InputFloat4("##value", (float*)&node.props[i].DataFinal[32], "%.3f", isReadOnly);
                 ImGui::SetNextItemWidth(-FLT_MIN);
 
-                ImGui::InputFloat4("##value", (float*)&node.props[i].DataFinal[48]);
+                ImGui::InputFloat4("##value", (float*)&node.props[i].DataFinal[48], "%.3f", isReadOnly);
             }
             // A[U32]
             else if (node.props[i].Type == 9) {
                 if (node.props[i].DataFinal.GetSize())
-                    ImGui::InputScalarN("##value", ImGuiDataType_U32, &node.props[i].DataFinal[0], (int)node.props[i].DataFinal.GetSize() / sizeof(u32));
+                    ImGui::InputScalarN("##value", ImGuiDataType_U32, &node.props[i].DataFinal[0], (int)node.props[i].DataFinal.GetSize() / sizeof(u32), 0, 0, 0, isReadOnly);
                 else
                     ImGui::Text("Empty array of u32.");
             }
             // A[F32]
             else if (node.props[i].Type == 10) {
                 if (node.props[i].DataFinal.GetSize())
-                    ImGui::InputScalarN("##value", ImGuiDataType_Float, &node.props[i].DataFinal[0], (int)node.props[i].DataFinal.GetSize() / sizeof(float));
+                    ImGui::InputScalarN("##value", ImGuiDataType_Float, &node.props[i].DataFinal[0], (int)node.props[i].DataFinal.GetSize() / sizeof(float), 0, 0, 0, isReadOnly);
                 else
                     ImGui::Text("Empty array of f32.");
             }
             // A[U8]
             else if (node.props[i].Type == 11) {
                 if (node.props[i].DataFinal.GetSize())
-                    ImGui::InputScalarN("##value", ImGuiDataType_U8, &node.props[i].DataFinal[0], (int)node.props[i].DataFinal.GetSize() / sizeof(u8));
+                    ImGui::InputScalarN("##value", ImGuiDataType_U8, &node.props[i].DataFinal[0], (int)node.props[i].DataFinal.GetSize() / sizeof(u8), 0, 0, 0, isReadOnly);
                 else
                     ImGui::Text("Empty array of u8.");
             }
             // ObjID
             else if (node.props[i].Type == 13) {
-                ImGui::InputScalar("##value", ImGuiDataType_U64, &node.props[i].DataFinal[0]);
+                ImGui::InputScalar("##value", ImGuiDataType_U64, &node.props[i].DataFinal[0], 0, 0, 0, isReadOnly);
             }
             // Event
             else if (node.props[i].Type == 14) {
                 if (node.props[i].DataFinal.GetSize())
-                    ImGui::InputScalarN("##value", ImGuiDataType_U64, &node.props[i].DataFinal[0], (int)node.props[i].DataFinal.GetSize() / sizeof(u64));
+                    ImGui::InputScalarN("##value", ImGuiDataType_U64, &node.props[i].DataFinal[0], (int)node.props[i].DataFinal.GetSize() / sizeof(u64), 0, 0, 0, isReadOnly);
                 else
                     ImGui::Text("Empty event.");
             }
@@ -358,6 +360,9 @@ void DrawNode(RtpcNode& node) {
                 }
                 else if (node.props[i].IsShared) {
                     ImGui::SetTooltip("Shared values connot be modified yet.");
+                }
+                else if (rtpcFile.Version == 3 && node.props[i].Type != 1 && node.props[i].Type != 2) {
+                    ImGui::SetTooltip("For now, only basic values can be modified in this version of RTPC (v3).");
                 }
             }
 
@@ -618,7 +623,9 @@ void DrawSearch() {
 }
 
 int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In_ LPSTR cmdLine, _In_ int cmdShow) {
+#ifndef _DEBUG
     InitHashMap();
+#endif
 
     sf::RenderWindow window(sf::VideoMode(1280, 720), "APEX.PropertyEditor");
     sf::Clock clock;

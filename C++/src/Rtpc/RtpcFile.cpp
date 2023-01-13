@@ -41,12 +41,36 @@ bool RtpcFile::Serialize(std::ofstream& file) {
 	file.write((char*)&Magic, sizeof(u32));
 	file.write((char*)&Version, sizeof(u32));
 
-	if (Version == 1)
+	if (Version == 1) {
 		return mainNode.Serialize_V1(file);
-	else if (Version == 2)
+	}
+	else if (Version == 2) {
 		return mainNode.Serialize_V2(file);
-	//else if (Version == 3)
-	//	return mainNode.Serialize_V3(file);
+	}
+	else if (Version == 3) {
+		// 1. Construct strings, and sort them.
+		// 2. Construct vec2, vec3, vec4, ??? and sort them.
+		// 
+		// 3. Update offsets. (TODO, This should allow modification of strings, shared props and 'complex' types)
+		// 
+		// 4. Write ONLY headers (like V2, with valid props count).
+		// 5. Write all constructed stuff in order (str, vec2, vec3, vec4, ???).
+
+		mainNode.ClearWrite();
+
+		mainNode.ConstructStrings();
+		mainNode.ConstructVec2();
+		mainNode.ConstructVec3();
+		mainNode.ConstructVec4();
+
+		mainNode.Serialize_V3_Headers(file);
+		mainNode.Serialize_V3_Strings(file);
+		mainNode.Serialize_V3_Vec2(file);
+		mainNode.Serialize_V3_Vec3(file);
+		mainNode.Serialize_V3_Vec4(file);
+
+		return true;
+	}
 
 	printf("[ERRO]: (Serialize) RTPC file version not supported: %d\n", Version);
 

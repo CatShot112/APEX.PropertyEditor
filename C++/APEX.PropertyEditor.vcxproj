@@ -124,6 +124,7 @@
     <ClInclude Include="src\Rtpc\RtpcFile.hpp" />
     <ClInclude Include="src\Rtpc\RtpcNode.hpp" />
     <ClInclude Include="src\Rtpc\RtpcProp.hpp" />
+    <ClInclude Include="src\Structs.hpp" />
     <ClInclude Include="src\Typedefs.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
