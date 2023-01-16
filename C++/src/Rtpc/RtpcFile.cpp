@@ -23,6 +23,8 @@ bool RtpcFile::Deserialize(std::ifstream& file) {
 	}
 
 	if (Version == 1 || Version == 2 || Version == 3) {
+		printf("Opening file version: %d\n", Version);
+
 		if (Version == 3)
 			mainNode.Deserialize(file, true);
 		else
@@ -62,12 +64,27 @@ bool RtpcFile::Serialize(std::ofstream& file) {
 		mainNode.ConstructVec2();
 		mainNode.ConstructVec3();
 		mainNode.ConstructVec4();
+		mainNode.ConstructMat3x3();
+		mainNode.ConstructMat4x4();
+		mainNode.ConstructAU32();
+		mainNode.ConstructAF32();
+		mainNode.ConstructAU8();
+		mainNode.ConstructObjID();
+		mainNode.ConstructEvent();
 
 		mainNode.Serialize_V3_Headers(file);
+
 		mainNode.Serialize_V3_Strings(file);
 		mainNode.Serialize_V3_Vec2(file);
 		mainNode.Serialize_V3_Vec3(file);
 		mainNode.Serialize_V3_Vec4(file);
+		mainNode.Serialize_V3_Mat3x3(file);
+		mainNode.Serialize_V3_Mat4x4(file);
+		mainNode.Serialize_V3_AU32(file);
+		mainNode.Serialize_V3_AF32(file);
+		mainNode.Serialize_V3_AU8(file);
+		mainNode.Serialize_V3_ObjID(file);
+		mainNode.Serialize_V3_Event(file);
 
 		return true;
 	}
