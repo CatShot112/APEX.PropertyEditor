@@ -42,6 +42,13 @@ void RtpcNode::ClearWrite() {
 	vec2s.clear();
 	vec3s.clear();
 	vec4s.clear();
+	mat3x3s.clear();
+	mat4x4s.clear();
+	au32s.clear();
+	af32s.clear();
+	au8s.clear();
+	aobjids.clear();
+	aevents.clear();
 }
 
 void RtpcNode::WritePadding(std::ofstream& file, int alignTo) {
@@ -250,7 +257,6 @@ bool RtpcNode::Serialize_V1(std::ofstream& file, bool writeSelf) {
 
 	return true;
 }
-
 bool RtpcNode::Serialize_V2(std::ofstream& file, bool writeSelf) {
 	// Write header
 	if (writeSelf) {
@@ -409,7 +415,6 @@ bool RtpcNode::Serialize_V2(std::ofstream& file, bool writeSelf) {
 	return true;
 }
 
-
 void RtpcNode::ConstructStrings() {
 	for (u16 i = 0; i < PropsCount; i++) {
 		if (props[i].Type == PTYPE_STR) {
@@ -500,7 +505,7 @@ void RtpcNode::ConstructMat4x4() {
 		if (!mat4x4s.count(mat4x4))
 			mat4x4s[mat4x4] = props[i].DataRaw;
 		else
-			props[i].DataRaw = mat3x3s.at(mat4x4);
+			props[i].DataRaw = mat4x4s.at(mat4x4);
 	}
 
 	for (u16 i = 0; i < ChildCount; i++)
@@ -799,11 +804,47 @@ bool RtpcNode::Serialize_V3_Mat3x3(std::ofstream& file) {
 	return true;
 }
 bool RtpcNode::Serialize_V3_Mat4x4(std::ofstream& file) {
-
+	typedef std::tuple<f32, f32, f32, f32> tupl4;
+	std::vector<std::tuple<tupl4, tupl4, tupl4, tupl4>> vMat4x4s;
+	
+	for (auto& it : mat4x4s) {
+		DataBuf data = it.first;
+		Mat4x4 m;
+		
+		data.Read((char*)&m, sizeof(Mat4x4));
+		vMat4x4s.emplace_back(std::make_tuple(std::make_tuple(m.a00, m.a01, m.a02, m.a03), std::make_tuple(m.b00, m.b01, m.b02, m.b03), std::make_tuple(m.c00, m.c01, m.c02, m.c03), std::make_tuple(m.d00, m.d01, m.d02, m.d03)));
+	}
+	
+	std::sort(vMat4x4s.begin(), vMat4x4s.end());
+	
+	for (auto& v : vMat4x4s) {
+		file.write((char*)&std::get<0>(std::get<0>(v)), sizeof(f32));
+		file.write((char*)&std::get<0>(std::get<1>(v)), sizeof(f32));
+		file.write((char*)&std::get<0>(std::get<2>(v)), sizeof(f32));
+		file.write((char*)&std::get<0>(std::get<3>(v)), sizeof(f32));
+		file.write((char*)&std::get<1>(std::get<0>(v)), sizeof(f32));
+		file.write((char*)&std::get<1>(std::get<1>(v)), sizeof(f32));
+		file.write((char*)&std::get<1>(std::get<2>(v)), sizeof(f32));
+		file.write((char*)&std::get<1>(std::get<3>(v)), sizeof(f32));
+		file.write((char*)&std::get<2>(std::get<0>(v)), sizeof(f32));
+		file.write((char*)&std::get<2>(std::get<1>(v)), sizeof(f32));
+		file.write((char*)&std::get<2>(std::get<2>(v)), sizeof(f32));
+		file.write((char*)&std::get<2>(std::get<3>(v)), sizeof(f32));
+		file.write((char*)&std::get<3>(std::get<0>(v)), sizeof(f32));
+		file.write((char*)&std::get<3>(std::get<1>(v)), sizeof(f32));
+		file.write((char*)&std::get<3>(std::get<2>(v)), sizeof(f32));
+		file.write((char*)&std::get<3>(std::get<3>(v)), sizeof(f32));
+		
+#ifdef _DEBUG
+		file.flush(); // DEBUG
+#endif
+	}
+	
+	WritePadding(file, 4);
 
 	return true;
 }
-bool RtpcNode::Serialize_V3_AU32(std::ofstream& file) { 
+bool RtpcNode::Serialize_V3_AU32(std::ofstream& file) {
 
 	return true;
 }
