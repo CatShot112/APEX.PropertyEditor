@@ -38,6 +38,11 @@ bool RtpcFile::Deserialize(std::ifstream& file) {
     return true;
 }
 
+// Constructed stuff:
+//   Each string/big property can occur only once.
+//   In order to write all of that correctly, we must iterate through all properties of all nodes and check
+//   if it's data already exists in array. If so, update offset to point to existing data.
+//
 bool RtpcFile::Serialize(std::ofstream& file) {
     // Write header
     file.write((char*)&Magic, sizeof(u32));

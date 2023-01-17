@@ -1,3 +1,7 @@
+// TODO: Add 'Log' class.
+
+// https://github.com/tim42/gibbed-justcause3-tools-fork/blob/master/Gibbed.JustCause3.ConvertProperty/Program.cs :)
+
 #include "../headers/imgui/imgui.h"
 #include "../headers/imgui/imgui_internal.h"
 #include "../headers/imgui/imgui-SFML.h"
@@ -15,6 +19,7 @@
 
 // Std library includes
 #include <unordered_map>
+#include <filesystem>
 
 #ifdef _DEBUG
 #pragma comment(lib, "sfml-system-d.lib")
@@ -28,6 +33,7 @@
 
 #pragma comment(lib, "opengl32.lib")
 
+namespace fs = std::filesystem;
 using Kbd = sf::Keyboard;
 
 // Global variables
@@ -35,7 +41,7 @@ RtpcFile rtpcFile;
 std::string currentFileName;
 
 bool searchOn = false;
-bool showAll = true;
+bool showAll = false;
 bool fileOpened = false;
 bool shortcutEnabled = false;
 
@@ -143,11 +149,14 @@ void ProcessShortcuts() {
                 // Open
                 if (Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::O)) {
                     if (FileSystem::OpenFileDialog(currentFileName)) {
-                        rtpcFile.Clear();
+                        // TODO: Block execution and let the user decide if to proceed.
+                        if (fs::file_size(currentFileName) > 204800) // 200 Kb
+                            printf("[WAR]: Opening big file!\n");
 
+                        rtpcFile.Clear();
                         ProcessRTPC(currentFileName);
 
-                        showAll = true;
+                        showAll = false;
                         fileOpened = true;
                     }
                 }
@@ -174,7 +183,7 @@ void ProcessShortcuts() {
                     rtpcFile.Clear();
                     ProcessRTPC(currentFileName);
 
-                    showAll = true;
+                    showAll = false;
                     fileOpened = true;
                 }
                 // Rename
@@ -185,7 +194,7 @@ void ProcessShortcuts() {
                 else if (fileOpened && Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::Q)) {
                     rtpcFile.Clear();
 
-                    showAll = true;
+                    showAll = false;
                     fileOpened = false;
                 }
             }
@@ -412,8 +421,11 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
             if (ImGui::MenuItem("Open", "CTRL+O"))
             {
                 if (FileSystem::OpenFileDialog(currentFileName)) {
-                    rtpcFile.Clear();
+                    // TODO: Block execution and let the user decide if to proceed.
+                    if (fs::file_size(currentFileName) > 204800) // 200 Kb
+                        printf("[WAR]: Opening big file!\n");
 
+                    rtpcFile.Clear();
                     ProcessRTPC(currentFileName);
 
                     showAll = true;
@@ -435,7 +447,7 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
                             rtpcFile.Clear();
                             ProcessRTPC(recentFiles[i]);
 
-                            showAll = true;
+                            showAll = false;
                             fileOpened = true;
                         }
                     }
@@ -473,7 +485,7 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
                 rtpcFile.Clear();
                 ProcessRTPC(currentFileName);
 
-                showAll = true;
+                showAll = false;
                 fileOpened = true;
             }
 
@@ -486,7 +498,7 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
             {
                 rtpcFile.Clear();
 
-                showAll = true;
+                showAll = false;
                 fileOpened = false;
             }
 
@@ -630,7 +642,8 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In
     sf::RenderWindow window(sf::VideoMode(1280, 720), "APEX.PropertyEditor");
     sf::Clock clock;
 
-    window.setVerticalSyncEnabled(true);
+    window.setVerticalSyncEnabled(false);
+    window.setFramerateLimit(60);
 
     ImGui::SFML::Init(window);
 
