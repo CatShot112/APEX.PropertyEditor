@@ -28,7 +28,7 @@ std::wstring utf8_decode(std::string str) {
 }
 
 namespace FileSystem {
-	bool OpenFileDialog(std::string& currentFileName) {
+    bool OpenFileDialog(std::string& currentFileName) {
         bool result = false;
 
         if (SUCCEEDED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE))) {
@@ -67,7 +67,7 @@ namespace FileSystem {
         }
 
         return result;
-	}
+    }
 
     bool SaveFileDialog(std::string& currentFileName) {
         bool result = false;
@@ -111,5 +111,5 @@ namespace FileSystem {
         }
 
         return result;
-	}
+    }
 }

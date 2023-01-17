@@ -4,17 +4,17 @@
 
 class RtpcFile {
 public:
-	// Header data
-	u32 Magic;
-	u32 Version;
+    // Header data
+    u32 Magic;
+    u32 Version;
 
-	RtpcNode mainNode;
+    RtpcNode mainNode;
 
-	RtpcFile();
+    RtpcFile();
 
-	void Clear();
+    void Clear();
 
-	bool Deserialize(std::ifstream& file);
+    bool Deserialize(std::ifstream& file);
 
-	bool Serialize(std::ofstream& file);
+    bool Serialize(std::ofstream& file);
 };
