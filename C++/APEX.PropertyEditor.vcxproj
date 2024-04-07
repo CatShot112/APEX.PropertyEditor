@@ -100,6 +100,7 @@
     <ClCompile Include="headers\imgui\imgui_stdlib.cpp" />
     <ClCompile Include="headers\imgui\imgui_tables.cpp" />
     <ClCompile Include="headers\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="headers\jenkins\hashlittle.cpp" />
     <ClCompile Include="src\DataBuf\DataBuf.cpp" />
     <ClCompile Include="src\FileSystem\FileSystem.cpp" />
     <ClCompile Include="src\Main.cpp" />
