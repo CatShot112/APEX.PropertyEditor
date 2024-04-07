@@ -358,37 +358,112 @@ void DrawNode(RtpcNode& node) {
 
                 ImGui::InputFloat4("##value3", (float*)&node.props[i].DataFinal[48], "%.3f", isReadOnly);
             }
-            // A[U32]
+            // A[U32] TODO: Auto calculate number of columns.
             else if (node.props[i].Type == 9) {
-                if (node.props[i].DataFinal.GetSize())
-                    ImGui::InputScalarN("##value", ImGuiDataType_U32, &node.props[i].DataFinal[0], (int)node.props[i].DataFinal.GetSize() / sizeof(u32), 0, 0, 0, isReadOnly);
-                else
+                if (node.props[i].DataFinal.GetSize()) {
+                    int num = (int)node.props[i].DataFinal.GetSize() / sizeof(u32);
+
+                    if (num <= 8) {
+                        ImGui::InputScalarN("##value", ImGuiDataType_U32, &node.props[i].DataFinal[0], num, 0, 0, 0, isReadOnly);
+                    }
+                    else {
+                        int a = num / 8;
+                        int b = num % 8;
+
+                        for (int ii = 0; ii < a; ii++) {
+                            ImGui::InputScalarN(string("##value" + std::to_string(ii)).c_str(), ImGuiDataType_U32, &node.props[i].DataFinal[ii * sizeof(u32) * 8], 8, 0, 0, 0, isReadOnly);
+                            ImGui::SetNextItemWidth(-FLT_MIN);
+                        }
+
+                        ImGui::InputScalarN("##valueLast", ImGuiDataType_U32, &node.props[i].DataFinal[a * sizeof(u32) * 8], b, 0, 0, 0, isReadOnly);
+                        ImGui::Separator();
+                    }
+                }
+                else {
                     ImGui::Text("Empty array of u32.");
+            }
             }
             // A[F32]
             else if (node.props[i].Type == 10) {
-                if (node.props[i].DataFinal.GetSize())
-                    ImGui::InputScalarN("##value", ImGuiDataType_Float, &node.props[i].DataFinal[0], (int)node.props[i].DataFinal.GetSize() / sizeof(float), 0, 0, 0, isReadOnly);
-                else
+                if (node.props[i].DataFinal.GetSize()) {
+                    int num = (int)node.props[i].DataFinal.GetSize() / sizeof(f32);
+
+                    if (num <= 8) {
+                        ImGui::InputScalarN("##value", ImGuiDataType_Float, &node.props[i].DataFinal[0], num, 0, 0, 0, isReadOnly);
+                    }
+                    else {
+                        int a = num / 8;
+                        int b = num % 8;
+
+                        for (int ii = 0; ii < a; ii++) {
+                            ImGui::InputScalarN(string("##value" + std::to_string(ii)).c_str(), ImGuiDataType_Float, &node.props[i].DataFinal[ii * sizeof(f32) * 8], 8, 0, 0, 0, isReadOnly);
+                            ImGui::SetNextItemWidth(-FLT_MIN);
+                        }
+
+                        ImGui::InputScalarN("##valueLast", ImGuiDataType_Float, &node.props[i].DataFinal[a * sizeof(f32) * 8], b, 0, 0, 0, isReadOnly);
+                    }
+
+                    ImGui::Separator();
+                }
+                else {
                     ImGui::Text("Empty array of f32.");
+            }
             }
             // A[U8]
             else if (node.props[i].Type == 11) {
-                if (node.props[i].DataFinal.GetSize())
-                    ImGui::InputScalarN("##value", ImGuiDataType_U8, &node.props[i].DataFinal[0], (int)node.props[i].DataFinal.GetSize() / sizeof(u8), 0, 0, 0, isReadOnly);
-                else
+                if (node.props[i].DataFinal.GetSize()) {
+                    int num = (int)node.props[i].DataFinal.GetSize() / sizeof(u32);
+
+                    if (num <= 16) {
+                        ImGui::InputScalarN("##value", ImGuiDataType_U8, &node.props[i].DataFinal[0], num, 0, 0, 0, isReadOnly);
+                    }
+                    else {
+                        int a = num / 16;
+                        int b = num % 16;
+
+                        for (int ii = 0; ii < a; ii++) {
+                            ImGui::InputScalarN(string("##value" + std::to_string(ii)).c_str(), ImGuiDataType_U8, &node.props[i].DataFinal[ii * sizeof(u8) * 16], 16, 0, 0, 0, isReadOnly);
+                            ImGui::SetNextItemWidth(-FLT_MIN);
+                        }
+
+                        ImGui::InputScalarN("##valueLast", ImGuiDataType_U8, &node.props[i].DataFinal[a * sizeof(u8) * 16], b, 0, 0, 0, isReadOnly);
+                    }
+
+                    ImGui::Separator();
+                }
+                else {
                     ImGui::Text("Empty array of u8.");
+            }
             }
             // ObjID
             else if (node.props[i].Type == 13) {
                 ImGui::InputScalar("##value", ImGuiDataType_U64, &node.props[i].DataFinal[0], 0, 0, 0, isReadOnly);
             }
-            // Event
+            // Event (aka. a[u64])
             else if (node.props[i].Type == 14) {
-                if (node.props[i].DataFinal.GetSize())
-                    ImGui::InputScalarN("##value", ImGuiDataType_U64, &node.props[i].DataFinal[0], (int)node.props[i].DataFinal.GetSize() / sizeof(u64), 0, 0, 0, isReadOnly);
-                else
+                if (node.props[i].DataFinal.GetSize()) {
+                    int num = (int)node.props[i].DataFinal.GetSize() / sizeof(u64);
+
+                    if (num <= 6) {
+                        ImGui::InputScalarN("##value", ImGuiDataType_U64, &node.props[i].DataFinal[0], num, 0, 0, 0, isReadOnly);
+                    }
+                    else {
+                        int a = num / 6;
+                        int b = num % 6;
+
+                        for (int ii = 0; ii < a; ii++) {
+                            ImGui::InputScalarN(string("##value" + std::to_string(ii)).c_str(), ImGuiDataType_U64, &node.props[i].DataFinal[ii * sizeof(u64) * 6], 6, 0, 0, 0, isReadOnly);
+                            ImGui::SetNextItemWidth(-FLT_MIN);
+                        }
+
+                        ImGui::InputScalarN("##valueLast", ImGuiDataType_U64, &node.props[i].DataFinal[a * sizeof(u64) * 6], b, 0, 0, 0, isReadOnly);
+                    }
+
+                    ImGui::Separator();
+                }
+                else {
                     ImGui::Text("Empty event.");
+            }
             }
 
             // Show tooltips
