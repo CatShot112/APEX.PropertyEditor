@@ -6,5 +6,7 @@ C++/Out
 C++/imgui.ini
 C++/*.vcxproj.user
 C++/*.vcxproj.filters
+C++/database.db
+C++/.history
 C++/property_list_2.txt
 C++/property_list_2_copy.txt

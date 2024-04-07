@@ -71,6 +71,35 @@ std::unordered_map<u8, string> propTypeNames = {
 
 std::vector<string> recentFiles;
 
+void LoadRecentFiles() {
+    std::ifstream file(".history", std::ios::in);
+    if (!file.is_open()) {
+        printf("[WAR]: File history doesn't exist!\n");
+        return;
+    }
+
+    string line;
+
+    while (std::getline(file, line)) {
+        recentFiles.emplace_back(line);
+    }
+
+    file.close();
+}
+void SaveRecentFiles() {
+    std::ofstream file(".history", std::ios::out);
+    if (!file.is_open()) {
+        printf("[WAR]: Failed to open file to write!\n");
+        return;
+    }
+
+    for (auto& s : recentFiles) {
+        file << s << std::endl;
+    }
+
+    file.close();
+}
+
 void InitHashMap() {
     std::ifstream file("property_list_2.txt");
     if (!file.is_open())
@@ -428,6 +457,9 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
                     rtpcFile.Clear();
                     ProcessRTPC(currentFileName);
 
+                    if (std::find(recentFiles.begin(), recentFiles.end(), currentFileName) == recentFiles.end())
+                        recentFiles.emplace_back(currentFileName);
+
                     showAll = true;
                     fileOpened = true;
                 }
@@ -639,6 +671,8 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In
     InitHashMap();
 #endif
 
+    LoadRecentFiles();
+
     sf::RenderWindow window(sf::VideoMode(1280, 720), "APEX.PropertyEditor");
     sf::Clock clock;
 
@@ -673,6 +707,7 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In
         window.display();
     }
 
+    SaveRecentFiles();
     ImGui::SFML::Shutdown();
 
     return 0;
