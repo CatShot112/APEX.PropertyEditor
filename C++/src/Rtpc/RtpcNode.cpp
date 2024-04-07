@@ -734,8 +734,8 @@ bool RtpcNode::Serialize_V3_Vec3(std::ofstream& file) {
 #endif
     }
 
-    if (vec4s.size())
-        WritePadding(file, 4);
+    if (vec4s.size() || mat3x3s.size() || mat4x4s.size())
+        WritePadding(file, 16);
 
     return true;
 }

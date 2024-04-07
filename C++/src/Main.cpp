@@ -185,7 +185,7 @@ void ProcessShortcuts() {
                         rtpcFile.Clear();
                         ProcessRTPC(currentFileName);
 
-                        showAll = false;
+                        showAll = true;
                         fileOpened = true;
                     }
                 }
@@ -313,7 +313,7 @@ void DrawNode(RtpcNode& node) {
 
             // U32
             if (node.props[i].Type == 1) {
-                ImGui::InputInt("##value", (int*)&node.props[i].DataRaw);
+                ImGui::InputScalar("##value", ImGuiDataType_U32, (int*)&node.props[i].DataRaw);
             }
             // F32
             else if (node.props[i].Type == 2) {
@@ -321,7 +321,7 @@ void DrawNode(RtpcNode& node) {
             }
             // Str
             else if (node.props[i].Type == 3) {
-                ImGui::InputText("##value", &node.props[i].DataStr, ImGuiInputTextFlags_ReadOnly);
+                ImGui::InputText("##value", &node.props[i].DataStr, isReadOnly);
             }
             // Vec2
             else if (node.props[i].Type == 4) {
@@ -337,26 +337,26 @@ void DrawNode(RtpcNode& node) {
             }
             // Mat3x3
             else if (node.props[i].Type == 7) {
-                ImGui::InputFloat3("##value", (float*)&node.props[i].DataFinal[0], "%.3f", isReadOnly);
+                ImGui::InputFloat3("##value0", (float*)&node.props[i].DataFinal[0], "%.3f", isReadOnly);
                 ImGui::SetNextItemWidth(-FLT_MIN);
 
-                ImGui::InputFloat3("##value", (float*)&node.props[i].DataFinal[12], "%.3f", isReadOnly);
+                ImGui::InputFloat3("##value1", (float*)&node.props[i].DataFinal[12], "%.3f", isReadOnly);
                 ImGui::SetNextItemWidth(-FLT_MIN);
 
-                ImGui::InputFloat3("##value", (float*)&node.props[i].DataFinal[24], "%.3f", isReadOnly);
+                ImGui::InputFloat3("##value2", (float*)&node.props[i].DataFinal[24], "%.3f", isReadOnly);
             }
             // Mat4x4
             else if (node.props[i].Type == 8) {
-                ImGui::InputFloat4("##value", (float*)&node.props[i].DataFinal[0], "%.3f", isReadOnly);
+                ImGui::InputFloat4("##value0", (float*)&node.props[i].DataFinal[0], "%.3f", isReadOnly);
                 ImGui::SetNextItemWidth(-FLT_MIN);
 
-                ImGui::InputFloat4("##value", (float*)&node.props[i].DataFinal[16], "%.3f", isReadOnly);
+                ImGui::InputFloat4("##value1", (float*)&node.props[i].DataFinal[16], "%.3f", isReadOnly);
                 ImGui::SetNextItemWidth(-FLT_MIN);
 
-                ImGui::InputFloat4("##value", (float*)&node.props[i].DataFinal[32], "%.3f", isReadOnly);
+                ImGui::InputFloat4("##value2", (float*)&node.props[i].DataFinal[32], "%.3f", isReadOnly);
                 ImGui::SetNextItemWidth(-FLT_MIN);
 
-                ImGui::InputFloat4("##value", (float*)&node.props[i].DataFinal[48], "%.3f", isReadOnly);
+                ImGui::InputFloat4("##value3", (float*)&node.props[i].DataFinal[48], "%.3f", isReadOnly);
             }
             // A[U32]
             else if (node.props[i].Type == 9) {
@@ -479,7 +479,7 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
                             rtpcFile.Clear();
                             ProcessRTPC(recentFiles[i]);
 
-                            showAll = false;
+                            showAll = true;
                             fileOpened = true;
                         }
                     }

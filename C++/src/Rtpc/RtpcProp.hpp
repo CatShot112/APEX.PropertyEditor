@@ -22,7 +22,9 @@ enum PTYPE {
     PTYPE_AU8,
     PTYPE_DEPRECATED_01,
     PTYPE_OBJID,
-    PTYPE_EVENT
+    PTYPE_EVENT,
+    PTYPE_UNK_01,
+    PTYPE_UNK_02
 };
 
 class RtpcProp {

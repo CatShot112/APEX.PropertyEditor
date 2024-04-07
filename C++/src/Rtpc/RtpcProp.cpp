@@ -40,7 +40,7 @@ bool RtpcProp::Deserialize(std::ifstream& file, bool handleShared) {
     case 2: // F32
         break;
     case 3: // Str
-        std::getline(file, DataStr);
+        std::getline(file, DataStr, '\0');
         break;
     case 4: // Vec2
         DataFinal.Resize(sizeof(float) * 2);
@@ -102,7 +102,7 @@ bool RtpcProp::Deserialize(std::ifstream& file, bool handleShared) {
 
         break;
     }
-    case 14: // Event
+    case 14: // Event (A[U64])
     {
         u32 arraySize = 0;
         file.read((char*)&arraySize, sizeof(u32));
@@ -112,6 +112,14 @@ bool RtpcProp::Deserialize(std::ifstream& file, bool handleShared) {
             file.read((char*)&DataFinal[0], sizeof(u64) * arraySize);
         }
 
+        break;
+    }
+    case 15:
+    {
+        break;
+    }
+    case 16:
+    {
         break;
     }
     default:
