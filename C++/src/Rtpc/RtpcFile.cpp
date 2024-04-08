@@ -55,15 +55,24 @@ bool RtpcFile::Serialize(std::ofstream& file) {
         return mainNode.Serialize_V2(file);
     }
     else if (Version == 3) {
+        // Write headers to temporary buffer instead of directly to file. Then get it's size (it shouldn't ever change).
+
         // 1. Construct strings, and sort them.
+        // 
+        // String must know it's owner/owners in order to update their offsets. This also applies to other data types.
+        // 
         // 2. Construct vec2, vec3, vec4, ??? and sort them.
         // 
         // 3. Update offsets. (TODO, This should allow modification of strings, shared props and 'complex' types)
         // 
-        // 4. Write ONLY headers (like V2, with valid props count).
+        // 4. Write ONLY headers (like V2, with valid props count and updated offsets).
         // 5. Write all constructed stuff in order (str, vec2, vec3, vec4, ???).
+        // 
+        // Size of headers doesn't change, so we can calculate where real data will be written?
 
         mainNode.ClearWrite();
+
+        mainNode.Serialize_V3_Headers(file);
 
         mainNode.ConstructStrings();
         mainNode.ConstructVec2();
@@ -77,19 +86,17 @@ bool RtpcFile::Serialize(std::ofstream& file) {
         mainNode.ConstructObjID();
         mainNode.ConstructEvent();
 
-        mainNode.Serialize_V3_Headers(file);
-
-        mainNode.Serialize_V3_Strings(file);
-        mainNode.Serialize_V3_Vec2(file);
-        mainNode.Serialize_V3_Vec3(file);
-        mainNode.Serialize_V3_Vec4(file);
-        mainNode.Serialize_V3_Mat3x3(file);
-        mainNode.Serialize_V3_Mat4x4(file);
-        mainNode.Serialize_V3_AU32(file);
-        mainNode.Serialize_V3_AF32(file);
-        mainNode.Serialize_V3_AU8(file);
-        mainNode.Serialize_V3_ObjID(file);
-        mainNode.Serialize_V3_Event(file);
+        mainNode.FixupStrings(file);
+        mainNode.FixupVec2(file);
+        mainNode.FixupVec3(file);
+        mainNode.FixupVec4(file);
+        mainNode.FixupMat3x3(file);
+        mainNode.FixupMat4x4(file);
+        mainNode.FixupAU32(file);
+        mainNode.FixupAF32(file);
+        mainNode.FixupAU8(file);
+        mainNode.FixupObjID(file);
+        mainNode.FixupEvent(file);
 
         return true;
     }

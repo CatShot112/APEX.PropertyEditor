@@ -2,14 +2,12 @@
 
 #include <string>
 
-vector<u32> readOffsets;
-
 RtpcProp::RtpcProp() {
     HashedName = 0;
     DataRaw = 0;
     Type = 0;
 
-    IsShared = false;
+    Offset = 0;
 }
 
 bool RtpcProp::Deserialize(std::ifstream& file, bool handleShared) {
@@ -24,15 +22,6 @@ bool RtpcProp::Deserialize(std::ifstream& file, bool handleShared) {
     // Seek to data if required
     if (Type != 0 && Type != 1 && Type != 2)
         file.seekg(DataRaw);
-
-    if (handleShared) {
-        if (!std::count(readOffsets.begin(), readOffsets.end(), DataRaw)) {
-            readOffsets.emplace_back(DataRaw);
-        }
-        else {
-            IsShared = true;
-        }
-    }
 
     switch (Type) {
     case 0: // None
@@ -115,16 +104,10 @@ bool RtpcProp::Deserialize(std::ifstream& file, bool handleShared) {
         break;
     }
     case 15:
-    {
-        break;
-    }
     case 16:
-    {
-        break;
-    }
     default:
         printf("[WARN]: Property type not handled: %d\n", Type);
-        return false;
+        break;;
     }
 
     // Go to saved read position

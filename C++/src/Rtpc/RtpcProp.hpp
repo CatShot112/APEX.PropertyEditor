@@ -5,8 +5,6 @@
 
 #include <fstream>
 
-extern vector<u32> readOffsets;
-
 enum PTYPE {
     PTYPE_NONE,
     PTYPE_U32,
@@ -39,7 +37,7 @@ public:
     string DataStr;
     DataBuf DataFinal;
 
-    bool IsShared;
+    u32 Offset;
 
     RtpcProp();
 

@@ -309,7 +309,8 @@ void DrawNode(RtpcNode& node) {
             ImGui::TableSetColumnIndex(2);
             ImGui::SetNextItemWidth(-FLT_MIN);
 
-            ImGuiInputTextFlags isReadOnly = rtpcFile.Version == 3 ? ImGuiInputTextFlags_ReadOnly : 0;
+            //ImGuiInputTextFlags isReadOnly = rtpcFile.Version == 3 ? ImGuiInputTextFlags_ReadOnly : 0;
+            ImGuiInputTextFlags isReadOnly = 0;
 
             // U32
             if (node.props[i].Type == 1) {
@@ -381,7 +382,7 @@ void DrawNode(RtpcNode& node) {
                 }
                 else {
                     ImGui::Text("Empty array of u32.");
-            }
+                }
             }
             // A[F32]
             else if (node.props[i].Type == 10) {
@@ -407,7 +408,7 @@ void DrawNode(RtpcNode& node) {
                 }
                 else {
                     ImGui::Text("Empty array of f32.");
-            }
+                }
             }
             // A[U8]
             else if (node.props[i].Type == 11) {
@@ -433,7 +434,7 @@ void DrawNode(RtpcNode& node) {
                 }
                 else {
                     ImGui::Text("Empty array of u8.");
-            }
+                }
             }
             // ObjID
             else if (node.props[i].Type == 13) {
@@ -463,20 +464,12 @@ void DrawNode(RtpcNode& node) {
                 }
                 else {
                     ImGui::Text("Empty event.");
-            }
+                }
             }
 
             // Show tooltips
             if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.25f) {
-                if (node.props[i].Type == 3) {
-                    ImGui::SetTooltip("Strings cannot be modified yet.");
-                }
-                else if (node.props[i].IsShared) {
-                    ImGui::SetTooltip("Shared values connot be modified yet.");
-                }
-                else if (rtpcFile.Version == 3 && node.props[i].Type != 1 && node.props[i].Type != 2) {
-                    ImGui::SetTooltip("For now, only basic values can be modified in this version of RTPC (v3).");
-                }
+
             }
 
             ImGui::NextColumn();
@@ -746,6 +739,7 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In
     InitHashMap();
 #endif
 
+    //InitHashMap();
     LoadRecentFiles();
 
     sf::RenderWindow window(sf::VideoMode(1280, 720), "APEX.PropertyEditor");
