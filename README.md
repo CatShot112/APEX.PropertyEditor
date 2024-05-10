@@ -12,7 +12,7 @@ Please make sure that modified files are serialized properly by comparing them w
 Compiled binaries can be found [here](https://github.com/CatShot112/APEX.PropertyEditor/releases).
 
 ## Build
-You will need to download compiled SFML binaries from [here](https://github.com/CatShot112/APEX.PropertyEditor/releases) and put libraries in `C++/external/lib/x64/`. Then just open solution in Visual Studio 2022 and compile.
+You will need to download compiled SFML binaries from [here](https://github.com/SFML/SFML/releases) and put libraries in `C++/external/lib/x64/`. Then just open solution in Visual Studio 2022 and compile.
 
 ## Known issues
 - After opening big file or file with a lot of nodes/props the program is slow AF.
