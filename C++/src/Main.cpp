@@ -43,10 +43,14 @@ std::string currentFileName;
 bool searchOn = false;
 bool showAll = false;
 bool fileOpened = false;
+bool fileBig = false;
 bool shortcutEnabled = false;
 
 bool showAbout = false;
 bool showSearch = false;
+bool showSettings = false;
+bool showStyleEditor = false;
+bool showLog = false;
 
 std::string searchStr;
 
@@ -70,6 +74,29 @@ std::unordered_map<u8, string> propTypeNames = {
 };
 
 std::vector<string> recentFiles;
+
+sf::RenderWindow window;
+
+namespace Settings {
+    static int fpsLimitType = 0;
+    static unsigned int fpsLimitFocused = 60;
+    static unsigned int fpsLimitBackground = 15;
+
+    // Restart required
+    static int loggingType = 0;
+    static std::string logPath = fs::current_path().generic_string() + "/Log.txt";
+
+    void Apply() {
+        if (fpsLimitType == 0) {
+            window.setVerticalSyncEnabled(true);
+            window.setFramerateLimit(0);
+        }
+        else if (fpsLimitType == 1) {
+            window.setVerticalSyncEnabled(false);
+            window.setFramerateLimit(fpsLimitFocused);
+        }
+    }
+}
 
 void LoadRecentFiles() {
     std::ifstream file(".history", std::ios::in);
@@ -101,7 +128,7 @@ void SaveRecentFiles() {
 }
 
 void InitHashMap() {
-    std::ifstream file("property_list_2.txt");
+    std::ifstream file("property_list.txt");
     if (!file.is_open())
         return;
 
@@ -179,13 +206,15 @@ void ProcessShortcuts() {
                 if (Kbd::isKeyPressed(Kbd::LControl) && Kbd::isKeyPressed(Kbd::O)) {
                     if (FileSystem::OpenFileDialog(currentFileName)) {
                         // TODO: Block execution and let the user decide if to proceed.
-                        if (fs::file_size(currentFileName) > 204800) // 200 Kb
+                        if (fs::file_size(currentFileName) > 204800) { // 200 Kb
                             printf("[WAR]: Opening big file!\n");
+                            fileBig = true;
+                        }
 
                         rtpcFile.Clear();
                         ProcessRTPC(currentFileName);
 
-                        showAll = true;
+                        showAll = (fileBig) ? false : true;
                         fileOpened = true;
                     }
                 }
@@ -287,6 +316,7 @@ void DrawNode(RtpcNode& node) {
             // Skip null props
             if (node.props[i].HashedName == 0)
                 continue;
+
             if (searchOn && node.props[i].DehashedName.find(searchStr) == std::string::npos)
                 continue;
 
@@ -519,8 +549,10 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
             {
                 if (FileSystem::OpenFileDialog(currentFileName)) {
                     // TODO: Block execution and let the user decide if to proceed.
-                    if (fs::file_size(currentFileName) > 204800) // 200 Kb
+                    if (fs::file_size(currentFileName) > 204800) { // 200 Kb
                         printf("[WAR]: Opening big file!\n");
+                        fileBig = true;
+                    }
 
                     rtpcFile.Clear();
                     ProcessRTPC(currentFileName);
@@ -528,7 +560,7 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
                     if (std::find(recentFiles.begin(), recentFiles.end(), currentFileName) == recentFiles.end())
                         recentFiles.emplace_back(currentFileName);
 
-                    showAll = true;
+                    showAll = (fileBig) ? false : true;
                     fileOpened = true;
                 }
             }
@@ -544,10 +576,15 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
                             break;
 
                         if (ImGui::MenuItem(recentFiles[i].c_str())) {
+                            if (fs::file_size(recentFiles[i]) > 204800) {
+                                printf("[WAR]: Opening big file!\n");
+                                fileBig = true;
+                            }
+
                             rtpcFile.Clear();
                             ProcessRTPC(recentFiles[i]);
 
-                            showAll = true;
+                            showAll = (fileBig) ? false : true;
                             fileOpened = true;
                         }
                     }
@@ -653,14 +690,9 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
 
         if (ImGui::BeginMenu("Options"))
         {
-            if (ImGui::MenuItem("Colors", "", nullptr, false))
+            if (ImGui::MenuItem("Settings", "", nullptr, true))
             {
-
-            }
-
-            if (ImGui::MenuItem("Settings", "", nullptr, false))
-            {
-
+                showSettings = true;
             }
 
             ImGui::EndMenu();
@@ -675,9 +707,9 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem("Console", "", nullptr, false))
+            if (ImGui::MenuItem("Log", "", nullptr, true))
             {
-
+                showLog = true;
             }
 
             ImGui::EndMenu();
@@ -688,7 +720,7 @@ void DrawMainMenuBar(sf::RenderWindow& window) {
 }
 
 void DrawAbout() {
-    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking;
 
     if (ImGui::Begin("About", &showAbout, flags))
     {
@@ -701,9 +733,9 @@ void DrawAbout() {
             }
 
             if (ImGui::BeginTabItem("Libraries")) {
-                ImGui::BulletText("ImGui");
-                ImGui::BulletText("ImGui-SFML");
-                ImGui::BulletText("SFML");
+                ImGui::TextLinkOpenURL("ImGui", "https://github.com/ocornut/imgui");
+                ImGui::TextLinkOpenURL("ImGui-SFML", "https://github.com/SFML/imgui-sfml");
+                ImGui::TextLinkOpenURL("SFML", "https://github.com/SFML/SFML");
 
                 ImGui::EndTabItem();
             }
@@ -716,19 +748,91 @@ void DrawAbout() {
 
             ImGui::EndTabBar();
         }
+    }
 
         ImGui::End();
     }
-}
 
 void DrawSearch() {
-    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking;
 
     if (ImGui::Begin("Search", &showSearch, flags)) {
         ImGui::Checkbox("Enable", &searchOn);
         ImGui::SameLine();
         ImGui::SetNextItemWidth(-FLT_MIN);
         ImGui::InputText("##value", &searchStr);
+    }
+
+    ImGui::End();
+}
+
+void TextCentered(std::string text) {
+    auto widthW = ImGui::GetWindowSize().x;
+    auto widthT = ImGui::CalcTextSize(text.c_str()).x;
+
+    ImGui::SetCursorPosX((widthW - widthT) * 0.5f);
+    ImGui::Text(text.c_str());
+}
+
+void DrawSettings() {
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+
+    if (ImGui::Begin("Settings", &showSettings, flags)) {
+        ImGui::SetNextItemWidth(-FLT_MIN);
+        if (ImGui::Button("Apply Settings"))
+            Settings::Apply();
+
+        TextCentered("Fps Limit Type");
+        ImGui::Separator();
+        ImGui::RadioButton("V-SYNC", &Settings::fpsLimitType, 0);
+        ImGui::RadioButton("FPS Limit", &Settings::fpsLimitType, 1);
+
+        if (Settings::fpsLimitType == 0)
+            ImGui::BeginDisabled();
+        ImGui::InputScalar("Limit Focused", ImGuiDataType_U32, &Settings::fpsLimitFocused);
+        ImGui::InputScalar("Limit Background", ImGuiDataType_U32, &Settings::fpsLimitBackground);
+        if (Settings::fpsLimitType == 0)
+            ImGui::EndDisabled();
+
+        ImGui::Separator();
+
+        TextCentered("Logging");
+        ImGui::Separator();
+        ImGui::RadioButton("Normal", &Settings::loggingType, 1);
+        ImGui::SameLine();
+        ImGui::RadioButton("In-Memory only", &Settings::loggingType, 2);
+        ImGui::SetItemTooltip("!!!WARNING!!!\n\nLog will be visible under Help->Log but WON'T BE SAVED TO DISK!!\nDATA WILL BE LOST UNLESS MANUALLY SAVED!!");
+        ImGui::SameLine();
+        ImGui::RadioButton("Disabled", &Settings::loggingType, 0);
+        if (Settings::loggingType != 1)
+            ImGui::BeginDisabled();
+        ImGui::Text("Log Path");
+        ImGui::SetNextItemWidth(-FLT_MIN);
+        ImGui::InputText("##", &Settings::logPath);
+        if (Settings::loggingType != 1)
+            ImGui::EndDisabled();
+
+        if (ImGui::Button("ImGui Style Editor"))
+            showStyleEditor = true;
+    }
+
+    ImGui::End();
+}
+
+void DrawLog() {
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+
+    if (ImGui::Begin("Log", &showLog, flags)) {
+        ImGui::Text("Framerate: %0.3f", ImGui::GetIO().Framerate);
+        
+    }
+
+    ImGui::End();
+}
+
+void DrawStyleEditor() {
+    if (ImGui::Begin("Dear ImGui Style Editor", &showStyleEditor))
+        ImGui::ShowStyleEditor();
 
         ImGui::End();
     }
@@ -745,10 +849,13 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In
     sf::RenderWindow window(sf::VideoMode(1280, 720), "APEX.PropertyEditor");
     sf::Clock clock;
 
+    window.create(sf::VideoMode(1280, 720), "APEX.PropertyEditor");
     window.setVerticalSyncEnabled(false);
     window.setFramerateLimit(60);
 
     ImGui::SFML::Init(window);
+
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     while (window.isOpen()) {
         sf::Event e;
@@ -758,6 +865,14 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In
 
             if (e.type == sf::Event::Closed)
                 window.close();
+
+            if (e.type == sf::Event::GainedFocus)
+                if (Settings::fpsLimitType == 1)
+                    window.setFramerateLimit(Settings::fpsLimitFocused);
+
+            if (e.type == sf::Event::LostFocus)
+                if (Settings::fpsLimitType == 1)
+                    window.setFramerateLimit(Settings::fpsLimitBackground);
         }
 
         ImGui::SFML::Update(window, clock.restart());
@@ -765,11 +880,23 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In
 
         DrawMainMenuBar(window);
         DrawPropertyEditor(nullptr);
+        //ImGui::ShowDemoWindow();
 
-        if (showAbout)
-            DrawAbout();
+        // Edit
         if (showSearch)
             DrawSearch();
+
+        // Options
+        if (showSettings)
+            DrawSettings();
+        if (showStyleEditor)
+            DrawStyleEditor();
+
+        // Help
+        if (showAbout)
+            DrawAbout();
+        if (showLog)
+            DrawLog();
 
         window.clear();
         ImGui::SFML::Render(window);
