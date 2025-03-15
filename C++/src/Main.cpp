@@ -750,8 +750,8 @@ void DrawAbout() {
         }
     }
 
-        ImGui::End();
-    }
+    ImGui::End();
+}
 
 void DrawSearch() {
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking;
@@ -834,8 +834,8 @@ void DrawStyleEditor() {
     if (ImGui::Begin("Dear ImGui Style Editor", &showStyleEditor))
         ImGui::ShowStyleEditor();
 
-        ImGui::End();
-    }
+    ImGui::End();
+}
 
 // https://gist.github.com/FRex/3f7b8d1ad1289a2117553ff3702f04af
 
@@ -882,7 +882,7 @@ LRESULT CALLBACK WndProc(HWND handle, UINT message, WPARAM wParam, LPARAM lParam
         DragFinish(hDrop);
     }
 
-            return CallWindowProc(reinterpret_cast<WNDPROC>(originalWndProc), handle, message, wParam, lParam);
+    return CallWindowProc(reinterpret_cast<WNDPROC>(originalWndProc), handle, message, wParam, lParam);
 }
 
 int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In_ LPSTR cmdLine, _In_ int cmdShow) {
@@ -893,7 +893,6 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In
     //InitHashMap();
     LoadRecentFiles();
 
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "APEX.PropertyEditor");
     sf::Clock clock;
 
     window.create(sf::VideoMode(1280, 720), "APEX.PropertyEditor");
