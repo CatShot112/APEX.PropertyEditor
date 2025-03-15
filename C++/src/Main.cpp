@@ -836,6 +836,53 @@ void DrawStyleEditor() {
 
         ImGui::End();
     }
+
+// https://gist.github.com/FRex/3f7b8d1ad1289a2117553ff3702f04af
+
+LONG_PTR originalWndProc = 0;
+
+LRESULT CALLBACK WndProc(HWND handle, UINT message, WPARAM wParam, LPARAM lParam) {
+    if (message == WM_DROPFILES) {
+        POINT point{};
+        HDROP hDrop = reinterpret_cast<HDROP>(wParam);
+
+        DragQueryPoint(hDrop, &point);
+
+        auto filesCount = DragQueryFile(hDrop, 0xFFFFFFFF, nullptr, 0);
+        if (filesCount > 1) {
+            printf("Only 1 file can be opened at once!\n");
+            DragFinish(hDrop);
+            return CallWindowProc(reinterpret_cast<WNDPROC>(originalWndProc), handle, message, wParam, lParam);
+        }
+
+        auto bufSize = DragQueryFile(hDrop, 0, nullptr, 0) + 1;
+        std::string buf;
+        buf.resize(bufSize);
+
+        if (DragQueryFile(hDrop, 0, &buf[0], bufSize)) {
+            currentFileName = buf;
+
+            if (!fs::is_directory(currentFileName)) {
+                if (fs::file_size(currentFileName) > 204800) { // 200 Kb
+                    printf("[WAR]: Opening big file!\n");
+                    fileBig = true;
+                }
+
+                rtpcFile.Clear();
+                ProcessRTPC(currentFileName);
+
+                showAll = (fileBig) ? false : true;
+                fileOpened = true;
+            }
+            else {
+                printf("[ERR]: Dragged folder!\n");
+            }
+        }
+
+        DragFinish(hDrop);
+    }
+
+            return CallWindowProc(reinterpret_cast<WNDPROC>(originalWndProc), handle, message, wParam, lParam);
 }
 
 int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In_ LPSTR cmdLine, _In_ int cmdShow) {
@@ -852,6 +899,9 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prevInstance, _In
     window.create(sf::VideoMode(1280, 720), "APEX.PropertyEditor");
     window.setVerticalSyncEnabled(false);
     window.setFramerateLimit(60);
+
+    DragAcceptFiles(window.getSystemHandle(), true);
+    originalWndProc = SetWindowLongPtr(window.getSystemHandle(), GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(WndProc));
 
     ImGui::SFML::Init(window);
 
